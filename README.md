@@ -8,4 +8,4 @@ A Fortune teller using an old french minitel and AI
 2.  After first start check  settings.ini
   -  add your Openai API code ( needs an account)
   -  check if the minitel can work with 4800 bauds. If there is a FNCT-Key change the Baudrate value to 4800.
-
+3.  And you need a minitel with a connection cable USB to DIN . It's helpfull to block the carriage-return key, cause i didn't find a way to filter it out. The use can diturb the output on the screen.
