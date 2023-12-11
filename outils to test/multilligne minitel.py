@@ -1,4 +1,4 @@
-import pynitel, serial, os, openai, time
+import pynitel, serial, os, time
 
 #******* Code start***************
 
@@ -17,9 +17,10 @@ if speed == 4800:
 else:# speed == 1200:            
      print("Baudrate: ", speed)
 m.home()
+# TEst Setting Page or scroll
 #os.system("echo -en '\x1b\x3a\x6A\x43' > /dev/ttyUSB0")
 #m.step(1)# Set up OpenAI API key
-#api_key = "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"
+#api_key = "your_openai_api_code"
 #openai.api_key = api_key
 #m._print("Losgehts")
 print("losgehts")
