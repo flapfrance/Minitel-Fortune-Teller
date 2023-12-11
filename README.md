@@ -1,5 +1,5 @@
 # Minitel-Fortune-Teller
-A Fortune teller using an old french minitel and AI with ChatGPT. Special thanks to cquest and his Python library: https://github.com/cquest/pynitel and all the informations found at the "Musée du minitel" : https://www.museeminitel.fr/ . Also thanks to all the friends who helped to bring this project alive.
+A Fortune teller using an old french minitel and AI with ChatGPT. Special thanks to cquest and his Python library: https://github.com/cquest/pynitel and all the informations found at the "Musée du minitel" : https://www.museeminitel.fr/ . Also thanks to all the friends who helped to bring this project to life.
 
 1.  Requirements: For the new Raspi-images based on Debian 12 (Bookworm), the installation of 3rd party pip components is restricted. To use them you can install them with `pip install "package_name" --break-system-packages` .
   -  Openai V1: `pip install openai` or if older Version is installed `pip install --upgrade openai`
