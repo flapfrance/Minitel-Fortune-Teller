@@ -1,5 +1,7 @@
+# TEST for scrolling long text with minitel
+#has to be updated for opneaiAPI V1
 import pynitel, serial, os, openai
-
+#
 #******Format to left and to right
 def strformat(left='', right='', fill=' ', width=40):
     " formattage de texte "
@@ -294,7 +296,7 @@ else:# speed == 1200:
 m.home()
 os.system("echo -en '\x1b\x3a\x6A\x43' > /dev/ttyUSB0")
 #m.step(1)# Set up OpenAI API key
-api_key = "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"
+api_key = "your_ openai_API_key"
 
 
 m._print("Losgehts")
