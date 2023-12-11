@@ -9,4 +9,6 @@ A Fortune teller using an old french minitel and AI with ChatGPT. Special thanks
 2.  After first start check  settings.ini
   -  add your Openai API code ( needs an account)
   -  check if the minitel can work with 4800 bauds. If there is a FNCT-Key change the Baudrate value to 4800.
-3.  And you need a minitel with a connection cable USB to DIN . It's helpfull to block the carriage-return key, cause i didn't find a way to filter it out. The use can disturb the output on the screen.
+3.  Divers:
+  - And you need a minitel (best is Minitel1 with FNCT Key) and a connection cable USB to DIN .More infos here:
+  - It's helpfull to block the carriage-return key, cause i didn't find a way to filter it out. The use can disturb the output on the screen.
