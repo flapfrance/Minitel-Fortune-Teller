@@ -18,8 +18,9 @@ from kerykeion import AstrologicalSubject  # ,  Report
 # Utility functions
 ####
 # ##****** replace short sign to long
-def data_astro(dat_ast, lan):
+def get_data_astro(dat_ast, lan):
     global kanye, language
+    kanye = None
     try:
         print("In try")
         kanye = AstrologicalSubject(*dat_ast) 
@@ -704,7 +705,8 @@ class StateMachine:
 
     def stateWelcome(self, entering):
         print("State Welcome")
-        global lang, sltime, data
+        global lang, sltime, data, answer
+        answer = ""
         touche = 0
         choix1 = ""
         m.home()
@@ -1046,7 +1048,7 @@ class StateMachine:
                 lang_answ = get_language_by_country_code(m.zones[2]['texte'])
 # *****************************************************************************
                 dat_ast = [data_p[0], data_p[1], data_p[2], data_p[3], data_p[4], data_p[5],data_p[6], data_p[7]]
-                thread_1 = Thread(target=data_astro, args=(dat_ast, str(m.zones[2]['texte']))) # data_astro(dat_ast)
+                thread_1 = Thread(target=get_data_astro, args=(dat_ast, str(m.zones[2]['texte']))) # get_data_astro(dat_ast)
                 thread_2 = Thread(target=self.changeState, args=(self.stateWaitForAnswer1,))
                 thread_1.start()
                 thread_2.start()
@@ -1450,7 +1452,7 @@ def main():
     csv_dateipfad = './WM/lang.csv'
     data = create_data(csv_dateipfad)  # to function
 
-   
+
 
     # Prepa divers
     global m
