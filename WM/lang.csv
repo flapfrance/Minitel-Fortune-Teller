@@ -114,10 +114,12 @@ p10t9;annee:;year:;Jahr:;year:
 p10t10;Heure de naissances (24h);Time of birth;Geburtszeit:;Time of birth
 p10t11;Heure:;hour;Stunde;hour
 p10t12;minutes:;minutes;Minute;minutes
+p10t12a;(Si inconnue, utilise 12h 00min);(If not known, use 12h 00min);(Falls unbekannt, gebe 12 Uhr 00 Minuten ein);(If not known, use 12h 00min)
 p10t13;Ville de naissance;Town of birth;Geburtsstadt;Town
 p10t14;Pays de naissance;Country of birth;Geburtsland;Country
 p10t15;Langue de la reponse;Language of answer;Antwortsprache;Language of answer
-p10t16;;;;
+p10t16;(code pays à deux lettres);(two letter code);(Zweibuchstaben-Ländercode);(two letter code)
+p10t16a;(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT)
 p10t17;* = requis;* = Field required;* = erforderlich;* = obligatorio
 p10t18;Ligne suiv.;Next Line → ;Naechste   →;Linea siguiente → 
 p10t19;Ligne préc.;Prev Line →;Vorherige →;Linea precedente→
