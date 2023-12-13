@@ -939,8 +939,8 @@ class StateMachine:
         m.zone(10, 11, 2, '', m.blanc)
         m.zone(10, 20, 2, '', m.blanc)
         m.zone(10, 30, 4, '', m.blanc)
-        m.zone(18, 15, 2, '', m.blanc)
-        m.zone(18, 28, 2, '', m.blanc)
+        m.zone(19, 15, 2, '', m.blanc)
+        m.zone(19, 28, 2, '', m.blanc)
         while True:
             # DATA LINE ****************
 
@@ -956,14 +956,16 @@ class StateMachine:
             m._print(transl("p10t9") + " ....")
             m.pos(13)
 
-            strcenter(row=16, pos=20, txt = transl("p10t10"), width=40, size=1)
+            strcenter(row=15, pos=20, txt = transl("p10t10"), width=40, size=1)
+            strcenter(row=16, pos=20, txt=transl("p10t12a"), width=40, size=0)
+
             #strcenter(row=18, pos=20, txt = transl("p10t11") + " .. " + transl("p10t12") + " .. ", width=40, size=0)
-            m.pos(18, 8)
+            m.pos(19, 8)
             m._print(transl("p10t11") + " ..")
-            m.pos(18, 19)
+            m.pos(19, 19)
             m._print(transl("p10t12") + " ....")
             #m._print('' + strformat(left=transl("p10t10")[:6], right=transl("p10t11")+" .. "+transl("p10t12")+" .. ", width=39))
-
+            #strcenter(row=16, pos=20, txt=transl("p10t12a"), width=40, size=0)
             # gestion de la zone de saisie courante******
             (zone, touche) = m.waitzones(zone, sltime)
             if touche == 1:
@@ -1025,8 +1027,10 @@ class StateMachine:
             strcenter(row=8, pos=20, txt=transl("p10t13"), width=40, size=1)
             strcenter(row=10, pos=20, txt="*........................", width=40, size=0)
             strcenter(row=13, pos=20, txt=transl("p10t14"), width=40, size=1)
+            strcenter(row=14, pos=20, txt=transl("p10t16"), width=20, size=0)
             strcenter(row=15, pos=20, txt="*.", width=40, size=0)
-            strcenter(row=18, pos=20, txt=transl("p10t15"), width=40, size=1)
+            strcenter(row=18, pos=20, txt=transl("p10t15"), width=20, size=1)
+            strcenter(row=19, pos=20, txt=transl("p10t16a"), width=20, size=0)
             strcenter(row=20, pos=20, txt="*.", width=40, size=0)
 
             # gestion de la zone de saisie courante******
@@ -1042,7 +1046,10 @@ class StateMachine:
             n = ["Place of Birth", "Country of Birth", "Language to answer"]
             for x in range(0, 1):
                 if m.zones[x]['texte'] == "":
-                    m.message(20, 15, 3, n[x] + " required")
+                    m.message(21, 15, 3, n[x] + " required")
+                    return
+                if m.zones[2]['texte'] not in ["FR", "DE", "EN", "ES", "IT"]:
+                    m.message(21, 15, 3, n[2] + " not in list")
                     return
                 data_p.extend([m.zones[0]['texte'], m.zones[1]['texte']])
                 lang_answ = get_language_by_country_code(m.zones[2]['texte'])
