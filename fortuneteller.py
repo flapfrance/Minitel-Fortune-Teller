@@ -1158,6 +1158,9 @@ class StateMachine:
             # choix1 = ""
             print("Go to sleeper")
             self.changeState(self.stateWelcome)
+        if touche == 6:  # Sommaire
+            m.resetzones()
+            self.changeState(self.stateWelcome)
 
     # ****************************************
     def stateWaitForAnswer2(self, entering):

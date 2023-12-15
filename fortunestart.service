@@ -1,0 +1,13 @@
+# Change User, WorkingDirectory path and ExecStart path if needed.
+# Use restart=always only if the installation works smooth.
+[Unit]
+Description=mtel-start Service
+After=network-online.target
+[Service]
+Type=idle
+User=pi
+WorkingDirectory=/home/pi/projects/fortune/
+ExecStart=/usr/bin/python /home/pi/projects/fortune/fortuneteller.py
+Restart=always
+[Install]
+WantedBy=multi-user.target
