@@ -30,10 +30,12 @@ print(relay.state)
 
 time.sleep(5)
 relay.toggle_state(1)
+relay.toggle_state(5)
 print(relay.state)
 
 time.sleep(10)
 relay.toggle_state(1)
+relay.toggle_state(5)
 print(relay.state)
 
 time.sleep(10)

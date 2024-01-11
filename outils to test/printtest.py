@@ -22,9 +22,9 @@ def read_codepages(usb_vendor_id, usb_product_id):
     z = random.randint(1,24)
     print(z)
     #p.text(str(z))
-    p.set(font='a', height=2, width=1, align='center', text_type='bold')
-    p.image("./pics/code_"+ str(z) + ".png")
-    #p.text("\n")
+    #p.set(font='a', height=2, width=1, align='center')
+    #p.image("./pics/code_"+ str(z) + ".png")
+    p.text("Test \n")
     # Schneide das Papier
     p.cut()
 
@@ -32,7 +32,7 @@ def read_codepages(usb_vendor_id, usb_product_id):
     p.close()
 
 # Ersetzen Sie die folgenden Werte durch die tatsächlichen Vendor-ID und Product-ID Ihres Druckers
-usb_vendor_id = 0x04b8 
-usb_product_id = 0x0e1f
+usb_vendor_id = 0x067B #04b8 
+usb_product_id = 0x2303 #0e1f
 
 read_codepages(usb_vendor_id, usb_product_id)
