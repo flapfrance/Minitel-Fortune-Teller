@@ -2,10 +2,10 @@ from PIL import Image
 from itertools import permutations
 
 # Lade die Bilder
-image1 = Image.open('1.png').convert('RGBA')
-image2 = Image.open('2.png').convert('RGBA')
-image3 = Image.open('3.png').convert('RGBA')
-image4 = Image.open('4.png').convert('RGBA')
+image1 = Image.open('s1.png').convert('RGBA')
+image2 = Image.open('s2.png').convert('RGBA')
+image3 = Image.open('s3.png').convert('RGBA')
+image4 = Image.open('s4.png').convert('RGBA')
 
 # Die Zahlen, die du kombinieren möchtest
 bilder = [image1, image2, image3, image4]
