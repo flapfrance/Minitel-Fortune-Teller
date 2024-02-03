@@ -5,11 +5,12 @@ A Fortune teller using an old french minitel and AI with ChatGPT. Special thanks
   -  Openai V1: `pip install openai` or if older Version is installed `pip install --upgrade openai`
   -  For USB relay (8 relays) : `pip install pyhid_usb_relay`
   -  For Thermal Printer: `pip install escpos`
-  -  Add Printer to udev:  udev rules: sudo nano /etc/udev/rules.d/97-escpos.rulesS
-           lsusb to find idVendor:isProduct  of printer (xxxx:yyyy)        
-           SUBSYSTEM=="usb", ATTRS{idVendor}=="xxxx", ATTRS{idProduct}=="yyyy", MODE="0666", GROUP="dialout"
-           sudo service udev restart
-           sudo reboot
+  -  Add Printer to udev:  
+           `lsusb` to find idVendor:isProduct  of printer (xxxx:yyyy)
+           udev rules: `sudo nano /etc/udev/rules.d/something-escpos.rules`        
+           `SUBSYSTEM=="usb", ATTRS{idVendor}=="xxxx", ATTRS{idProduct}=="yyyy", MODE="0666", GROUP="dialout"`
+          `sudo service udev restart`
+           `sudo reboot`
   -  Module astroloic: `pip install kerykeion`
 2.  After first start check  settings.ini
   -  add your Openai API code ( needs an account)
