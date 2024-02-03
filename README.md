@@ -5,8 +5,8 @@ A Fortune teller using an old french minitel and AI with ChatGPT. Special thanks
   -  Openai V1: `pip install openai` or if older Version is installed `pip install --upgrade openai`
   -  For USB relay (8 relays) : `pip install pyhid_usb_relay`
   -  For Thermal Printer: `pip install escpos`
-  -  Add Printer to udev:&lt;br&gt;<br>     
-    `lsusb` to find idVendor:isProduct  of printer (xxxx:yyyy) &lt;br&gt;<br>     
+  -  Add Printer to udev: \<br>     
+    `lsusb` to find idVendor:isProduct  of printer (xxxx:yyyy) \<br>    
     udev rules: `sudo nano /etc/udev/rules.d/something-escpos.rules` <br>           
     Add: `SUBSYSTEM=="usb", ATTRS{idVendor}=="xxxx", ATTRS{idProduct}=="yyyy", MODE="0666", GROUP="dialout"`<br>     
     `sudo service udev restart`<br>     
