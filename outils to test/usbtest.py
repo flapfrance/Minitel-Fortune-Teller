@@ -6,7 +6,7 @@ import serial
 import time
 
 # COM-Port entsprechend deinem System anpassen (normalerweise "COMx" unter Windows oder "/dev/ttyUSBx" unter Linux)
-ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
 
 # Beispiel: Relais einschalten
 #ser.write(b'DEIN BEFEHL ZUM EINSCHALTEN DES RELAIS')

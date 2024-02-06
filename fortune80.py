@@ -174,7 +174,7 @@ def printCheck():
 
     # Check and prepare Printer (First USB, then serial) (Serial not finished)
     try:
-        p = Usb(0x04b8, 0x0e1f)
+        p = Usb(0x0456, 0x0808, in_ep=0x81, out_ep=0x03, profile='TM-P80')
         # p = Usb(int(config['printer']['p_idvend'],16), int(config['printer']['p_idprod'],16))#, r1[6], r1[7])
         # p = Usb(int(r1[4],16), int(r1[5],16))#, r1[6], r1[7])
         pV = True
@@ -1205,15 +1205,15 @@ class StateMachine:
                 m.scale(3)
                 m._print(str(x))
                 time.sleep(1)
-                if r:
-                    if x > 2 and x < 5:
-                        relay.set_state(4, True)
-                    else:
-                        relay.set_state(4, False)
+                
+                if 2 < x < 5 and r:
+                    relay.set_state(4, True) 
+                elif r:
+                    relay.set_state(4, False)
 
                 if not thread_1.is_alive():
                     
-                    if relay:
+                    if r:
                         relay.set_state(1, False)
                     break
 
@@ -1235,7 +1235,7 @@ class StateMachine:
         # file_content = file.read()
         file_content = answer
         lines = split_string_into_lines(file_content, max_line_length=39)
-        print_lines = split_string_into_lines(file_content, max_line_length=32)
+        print_lines = split_string_into_lines(file_content, max_line_length=48)
 
         print("Anzahl Zeilen", len(lines))  # anzahl zeilen
         # print(pV)
@@ -1394,9 +1394,10 @@ class StateMachine:
                 # print("./pics/code_" + str(z) + ".png")
                 if pV == True:
                     p.text("\n")
-                    p.image("./WM/ww.png")
+                    p.set(font='b', height=2, width=2, align='center')
+                    p.image("./WM/ww.png", impl='bitImageColumn')
                     p.text("\n")
-                    p.image("./WM/fortune.png")
+                    p.image("./WM/fortune.png", impl='bitImageColumn')
                     p.set(font='a', height=2, width=1, align='center')  # , text_type='bold')
                     p.text("\n \n")
                     p.set(font='a', height=1, width=1, align='center')  # , text_type='bold')
@@ -1410,13 +1411,17 @@ class StateMachine:
                     p.text("\n More informations or \n")
                     p.text("share your experience\n")
                     p.text("check the QR code!\n")
-                    # p.qr('WISH WIZARD PROJECT \n ' + answer, 0, 5, 2)
-                    p.qr('WISH WIZARD PROJECT \n https://www.facebook.com/wishwizardproject', 0, 5, 2)
-                    # p.set(font='b', height=2, width=2, align='center') #, text_type='bold')
+                    p.set(font='b', height=2, width=2, align='center')
+                    p.qr('WISH WIZARD PROJECT \n https://www.facebook.com/wishwizardproject', 0, 5, 2, impl='bitImageColumn')
+                    p.cut("PART")
+                    p.set(font='a', height=2, width=2, align='center') #, text_type='bold')
                     p.text("_________________________")
                     p.text("\n \n")
-                    p.set(align='center')
-                    p.image("./WM/pics/code_" + str(z) + ".png")
+                    p.text(transl("p11t1"))
+                    p.text(transl("p11t2"))
+                    p.ln()
+                    #p.set(align='center')
+                    p.image("./WM/pics/code_" + str(z) + ".png", impl='bitImageColumn')
                     p.text("\n")
                     p.text("_________________________")
                     p.cut()

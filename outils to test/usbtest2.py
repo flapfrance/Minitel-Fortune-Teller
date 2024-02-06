@@ -19,7 +19,7 @@ if dev.is_kernel_driver_active(0):
 	dev.detach_kernel_driver(0)
 	print("Ok bis hier ")
 cfg = dev.get_active_configuration()
-##print(cfg)
+print(cfg)
 intf = cfg[(0,0)]
 
 ep = usb.util.find_descriptor(
@@ -33,11 +33,11 @@ ep = usb.util.find_descriptor(
 assert ep is not None
 
 close_relay_cmd = [0xA0, 0x01, 0x01, 0xA2]
-#open_relay_cmd = [0xA0, 0x01, 0x00, 0xA1]
+open_relay_cmd = [0xA0, 0x01, 0x00, 0xA1]
 
 # Since I'm using this to send a signal to a gate controller, I'm simulating just
 # pressing a button to make the circuit for 2 seconds, then releasing:
 
-ep.write(close_relay_cmd)
-time.sleep(2)
-ep.write(open_relay_cmd)
+#ep.write(close_relay_cmd)
+#time.sleep(2)
+#ep.write(open_relay_cmd)
