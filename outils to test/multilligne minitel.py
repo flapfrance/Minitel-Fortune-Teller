@@ -23,8 +23,9 @@ m.home()
 #openai.api_key = api_key
 #m._print("Losgehts")
 print("losgehts")
-m.drawscreen("Fortune.vdt")
+m.drawscreen("fortune.vdt")
 time.sleep(5)
+m.xdraw("fortune.png")
 m.home()
 m.resetzones()
 
