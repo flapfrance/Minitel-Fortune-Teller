@@ -8,8 +8,8 @@ def read_codepages(usb_vendor_id, usb_product_id):
     # Drucken Sie einen Testbeleg, der Codepage-Informationen enthält
     #p.text("\x1D\x54\x04")  # ESC/POS-Befehl für Codepage-Informationen
     #p.charcode(code = 'CP850')
-    p.charcode = 'CP850'
-    p.codepage = 'CP850'
+    #p.charcode = 'CP850'
+    #p.codepage = 'CP850'
     #p.text("test \n")
     x = "ÄäÖöÜü éàèùò \n Æ æ œ Œ  ç Ç \n ë Ë Ï ï « » €\n"
 #***Adaptation to printer
@@ -24,7 +24,7 @@ def read_codepages(usb_vendor_id, usb_product_id):
     #p.text(str(z))
     #p.set(font='a', height=2, width=1, align='center')
     #p.image("./pics/code_"+ str(z) + ".png")
-    p.text("Test \n")
+    p.text("Test")
     # Schneide das Papier
     p.cut()
 

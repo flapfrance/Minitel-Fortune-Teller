@@ -1,10 +1,10 @@
 codetxt;FR;EN;DE;ES;;;;
 ;;;;;;;;
-p0t1;Pour continuer tape;To continue press ;Weiter→ Druecke ;To continue press ;;;;
+p0t1;Pour continuer →;To continue press ;Weiter→ Druecke ;To continue press ;;;;
 p1t1;FORTUNE;FORTUNE;FORTUNE;FORTUNE;;;;
 p1t2;TELLER;TELLER;TELLER;TELLER;;;;
-p1t3;Mieux que ;;;;;;;
-p1t3a;les boules en crystal;Better than Crystal bulbs;Besser als Glaskugeln;Better than Crystal bulbs;;;;
+p1t3;Mieux que des;;;;;;;
+p1t3a;les boules de crystal;Better than Crystal bulbs;Besser als Glaskugeln;Better than Crystal bulbs;;;;
 p1t4;Language choice;Language choice;Language choice;Elige tu lenguaje;;;;
 p1t5;Français = FR;Français = FR;Français = FR;Français = FR;;;;
 p1t6;English = EN;English = EN;English = EN;Ingles = EN;;;;
@@ -118,13 +118,15 @@ p10t12a;(Si inconnue, utilise 12h 00min);(If not known, use 12h 00min);(Falls un
 p10t13;Ville de naissance;Town of birth;Geburtsstadt;Town;;;;
 p10t14;Pays de naissance;Country of birth;Geburtsland;Country;;;;
 p10t15;Langue de la reponse;Language of answer;Antwortsprache;Language of answer;;;;
-p10t16;(code pays à deux lettres);(two letter code);(Zweibuchstaben-Ländercode);(two letter code);;;;
+p10t16;(code pays en deux lettres);(two letter code);(Zweibuchstaben-Ländercode);(two letter code);;;;
 p10t16a;(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);;;;
 p10t17;; = requis;; = Field required;; = erforderlich;; = obligatorio
+p10t17a;Une question particulier?;A personal question?;Eine Extrafrage?;A personal question?;;;;
 p10t18;Ligne suiv.;Next Line → ;Naechste   →;Linea siguiente → ;;;;
 p10t19;Ligne préc.;Prev Line →;Vorherige →;Linea precedente→;;;;
 p10t20;Sauvegarder→;      Save →; Speichern →;     Registrar →;;;;
 p10t21;  Home →;  Home →;Zurueck →;  Home →;;;;
-p10t22;;;;;;;;
+p10t22;Ta prediction personel(le), ;Your personnel prediction,;Deine Vorhersage,;Your prediction, ;;;;
 p11t1;Voici le code calculé à la base de votre horoscope :;And here your code based on your horoscope.;Hier dein persönlicher Horoskopcode.;And here your code based on your horoscope.;;;;
 p11t2;Si vous trouvez quelq’un(e) avec le même, faites connaicance !;If you find someone with the same, you should connect.;Findest du jemanden mit dem gleichen, solltest du connecten.;If you find someone with the same, you should connect.;;;;
+p12t1;;;;;;;;

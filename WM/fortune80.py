@@ -546,9 +546,29 @@ class StateMachine:
 
     def stateInfo1(self, entering):
         print("Infopage")
+       
         time.sleep(2)
         self.changeState(self.stateWelcome)
 
+    def stateEuro(self, entering):
+        print("Europage")
+        m.home()
+        m.pos(0)
+        m._print('Fortune Teller')
+        m.pos(r,center_side_h)
+        # Liste aus Datei laden
+        with open('/WM/1EURO.json', 'r') as f:
+            loaded_list = json.load(f)
+
+        for row in loaded_list: #minitel_result:        
+            for entry in row:        
+                m.gr()
+                m.sendchr(int(code(entry),16))       
+            r = r+1
+            m.pos(r,center_side_h)
+            print()
+        time.sleep(2)
+        self.changeState(self.stateWelcome)
     def statePrefs(self, entering):  # Prefs: timer screensave, perhaps, Printer
         print("State Preferences")
         global lang, sltime

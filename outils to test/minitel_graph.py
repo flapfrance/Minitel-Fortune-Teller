@@ -10,8 +10,8 @@ sltime = 60
 if speed == 4800:
      os.system("echo -en '\x1b\x3a\x6b\x76' > /dev/ttyUSB0")
      m.end()      
-     os.system("stty -F /dev/ttyUSB0 speed 4800")
-     m = pynitel.Pynitel(serial.Serial('/dev/ttyUSB0', 4800, parity=serial.PARITY_EVEN, bytesize=7, timeout=2))
+     os.system("stty -F /dev/ttyUSB1 speed 4800")
+     m = pynitel.Pynitel(serial.Serial('/dev/ttyUSB1', 4800, parity=serial.PARITY_EVEN, bytesize=7, timeout=2))
      print("Baudrate: ", speed)
 else:# speed == 1200:            
      print("Baudrate: ", speed)

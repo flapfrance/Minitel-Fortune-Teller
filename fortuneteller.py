@@ -4,8 +4,8 @@
 # Thanks to Oceane, JS, Montaulab, Claudine, CQuest, Musée du minitel....
 # And the Wishwizardteam Olli, Holger, Mephy und allen anderen.
 # *************************************************************
-
-import csv, sys, pynitel
+import serial.tools.list_ports
+import csv, sys, pynitel, json
 import time, configparser, random
 import pyhid_usb_relay, requests
 from openai import OpenAI
@@ -15,26 +15,78 @@ from kerykeion import AstrologicalSubject  # ,  Report
 
 
 ####
+
 # Utility functions
 ####
 # ##****** replace short sign to long
+def listener():
+    global money, run, ser
+    if ser:
+        print(" Listener start", ser)
+        try:
+            while True:
+                # Read data from Arduino Moneymaker
+                data = ser.readline().decode('utf-8').strip()
+                print("Read from Arduino Money: ",data)
+                #ser.write("OK\n".encode('utf-8'))
+
+                if data == "WAIT_FOR_OK":
+                    run = True
+                    ser.write("RUN\n".encode('utf-8'))  # Send info to Arduino Moneymaker
+                    print("Running Programm")
+                    #ser.write("OK\n".encode('utf-8'))
+
+
+                    ser.write("TRANSACTION_COMPLETE\n".encode('utf-8'))  # Send info to Arduino Moneymaker
+                elif data == "ENDED":
+                    print("Moneymaker is waiting for Money")
+        except:
+            print("ExceptionTrue")
+            None
+    
+
+def find_arduino_port():
+    global ser, run
+    print("FindArduino1")
+    try:
+        arduino_ports = [port.device for port in serial.tools.list_ports.comports() if 'Arduino' in port.description]
+    except:
+        if not arduino_ports:
+            print("Arduino not found.")
+    if len(arduino_ports) > 1:
+        print("More than one Arduinos found. Use the first one.")
+        arduino_port = arduino_ports[0]
+    if len(arduino_ports) == 1:
+        arduino_port = arduino_ports[0]
+    run = False
+    #arduino_port = find_arduino_port()
+
+    # initialize serial port
+    if arduino_ports:
+        ser = serial.Serial(arduino_port, 19200)
+        print(ser)
+        return ser
 def get_data_astro(dat_ast, lan):
     global kanye, language
     kanye = None
     try:
         kanye = AstrologicalSubject(*dat_ast)
+        print("KANYE",kanye)
+
     except:
         m.home()
         m.message(20, 5, 3, "There is an issue with your data, please try again")
-        # self.changeState(self.stateWelcome)
+        print("KANYE",kanye)
+        return("Error")
+        
     try:
         print("In try: ", lan)
         language = get_language_by_country_code(lan)
-        print("language")
+        print("language", language)
     except:
         m.home()
         m.message(20, 5, 3, "There is an issue with your language data, please try again")
-
+        return("Error")
 
 def get_language_by_country_code(country_code):
     print("Given CCode: " + country_code)
@@ -174,7 +226,7 @@ def printCheck():
 
     # Check and prepare Printer (First USB, then serial) (Serial not finished)
     try:
-        p = Usb(0x04b8, 0x0e1f)
+        p = Usb(0x0456, 0x0808, in_ep=0x81, out_ep=0x03, profile='TM-P80')
         # p = Usb(int(config['printer']['p_idvend'],16), int(config['printer']['p_idprod'],16))#, r1[6], r1[7])
         # p = Usb(int(r1[4],16), int(r1[5],16))#, r1[6], r1[7])
         pV = True
@@ -229,13 +281,14 @@ def chatbot(messa):
     config = configparser.ConfigParser()
     config.read('settings.ini')
     # Initialize the conversation history with a message from the chatbot
-    txt = ("Make a prediction for the year 2024. Use the given data. " +
+    txt = ("Make a prediction for the next 6 month. Use the given data. " +
            "Use familiar, magical and mystical language full of fantasy like an old fortuneteller on a fairy fair. " +
            "Use the astrologic and numerologic  informations from the personal data. " +
-           "Use also the extra text as special question if given. " +
+           "Talk also about Work, relationship, and love" +
+           "Use the extra text only if given as special question. " +
            "Integrate in the beginning the sign, ascendent and the most important data from the numerological results. " +
            "If a different language is asked for, please translate. " +
-           "Give a short answer witch doesn't use more than approximately " + config['IA']['max_tok'] + " tokens. " +
+           "The answer shouldn't use more than approximately " + config['IA']['max_tok'] + " tokens. " +
            "Always finish the sentences.")
     # print(txt)
     message_log = [{"role": "system", "content": txt}]
@@ -297,7 +350,27 @@ def split_string_into_lines(text, max_line_length=40):
         lines.append(current_line)
 
     return lines
-
+def code(user_input):
+    x = ""
+    data = [[0, '0x20'], [1, '0x21'], [2, '0x22'], [3, '0x23'], [4, '0x24'], [5, '0x25'], [6, '0x26'], [7, '0x27'],
+            [8, '0x28'], [9, '0x29'], [10, '0x2a'], [11, '0x2b'], [12, '0x2c'], [13, '0x2d'], [14, '0x2e'],
+            [15, '0x2f'],
+            [16, '0x30'], [17, '0x31'], [18, '0x32'], [19, '0x33'], [20, '0x34'], [21, '0x35'], [22, '0x36'],
+            [23, '0x37'],
+            [24, '0x38'], [25, '0x39'], [26, '0x3a'], [27, '0x3b'], [28, '0x3c'], [29, '0x3d'], [30, '0x3e'],
+            [31, '0x3f'],
+            [32, '0x60'], [33, '0x61'], [34, '0x62'], [35, '0x63'], [36, '0x64'], [37, '0x65'], [38, '0x66'],
+            [39, '0x67'],
+            [40, '0x68'], [41, '0x69'], [42, '0x6a'], [43, '0x6b'], [44, '0x6c'], [45, '0x6d'], [46, '0x6e'],
+            [47, '0x6f'],
+            [48, '0x70'], [49, '0x71'], [50, '0x72'], [51, '0x73'], [52, '0x74'], [53, '0x75'], [54, '0x76'],
+            [55, '0x77'],
+            [56, '0x78'], [57, '0x79'], [58, '0x7a'], [59, '0x7b'], [60, '0x7c'], [61, '0x7d'], [62, '0x7e'],
+            [63, '0x7f']
+            ]
+    user_input = int(user_input)
+    hex_value, decimal_value = data[int(user_input)]
+    return decimal_value
 
 ###
 # State machine aka "The brain"
@@ -342,8 +415,8 @@ class StateMachine:
 
         print("~~~ Initialisation ~~~")
         print("Minitel init")
-        global m, lang, th1, data, sltime, p, pV, answer, client
-
+        global m, lang, th1, data, sltime, p, pV, answer, client, zone
+        zone = 1
         print("Officielle IP: ", getNetworkIp())
         config = configparser.ConfigParser()
         config.read('settings.ini')
@@ -725,7 +798,9 @@ class StateMachine:
 
     def stateWelcome(self, entering):
         print("State Welcome")
-        global lang, sltime, data, answer
+        global lang, sltime, data, answer, run, zone
+        zone = 1
+
         answer = ""
         touche = 0
         choix1 = ""
@@ -838,18 +913,51 @@ class StateMachine:
         if touche == m.guide:
             self.changeState(self.stateInfo1)
 
+    def stateEuro(self, entering):
+        print("Europage")
+        m.home()
+        m.pos(0)
+        center_side_h = int(0)  + 1  # horizoantal
+        center_side_w = int(2) + 1  # Vertical
+        r = center_side_w
+        m._print('Fortune Teller')
+        m.pos(r, center_side_h)
+        # Liste aus Datei laden
+        with open('./WM/1EURO.json', 'r') as f:
+            loaded_list = json.load(f)
+
+        for row in loaded_list:  # minitel_result:
+            for entry in row:
+                m.gr()
+                m.sendchr(int(code(entry), 16))
+            r = r + 1
+            m.pos(r, center_side_h)
+           
+        time.sleep(5)
+        self.changeState(self.stateWelcome)
     # ****************************************  ASTRO DATA
     def stateEnterData1(self, entering):  # Enter Name and Sexe
-        global data, lang, sltime, data_p, data_gender
+        global data, lang, sltime, data_p, data_gender, run, zone
+        print("State DATA1", run)
         # data_p = ()
         annu_save = ""
         print("State Enter Name / Sexe")
-        zone = 1
+
+
+
         m.home()
         # m.resetzones()
         m.zone(10, 8, 23, '', m.blanc)
         m.zone(17, 20, 1, '', m.blanc)
+
+
         while True:
+            if not run:
+                print("datafalse")
+                m.resetzones()
+                m.home()
+                touche = 0
+                break
 
             # HEADLINE ******************
             m.pos(2)
@@ -919,23 +1027,27 @@ class StateMachine:
                 # CHECK Input
                 if m.zones[0]['texte'] == "":
                     m.message(20, 15, 3, "Name required")
+                    zone = 1
                     break
                 elif m.zones[1]['texte'] == "":
                     m.message(20, 15, 3, "Sexe required")
+                    zone = 2
                     break
                 elif m.zones[1]['texte'] not in ["m", "M", "h", "H", "f", "F", "w", "W", "d", "D"]:
                     m.message(20, 5, 3, "Sexe only M, H, F, W allowed")
+                    zone = 2
                     break
                 else:  # All ok
                     break
-            if touche == 6:  # Sommaire
+            elif touche == 6:  # Sommaire
                 break
-            if touche == 5:
+            elif touche == 5:
                 break
 
         if touche == 1:
-            if not [m.zones[0]['texte']] == "" or m.zones[1]['texte'] == "":
+            if m.zones[0]['texte']  and  m.zones[1]['texte' ]:
                 data_p = [m.zones[0]['texte']]
+                print("data1", [m.zones[0]['texte']], "data2", [m.zones[1]['texte']], )
                 if m.zones[1]['texte'] in ["m", "M", "h", "H"]:
                     data_gender = "The questioner is a man"
                 elif m.zones[1]['texte'] in ["f", "F", "w", "W"]:
@@ -945,17 +1057,22 @@ class StateMachine:
                 else:
                     return
                 m.resetzones()
+                zone = 1
                 self.changeState(self.stateEnterData2)
 
-        if touche == 6:  # Sommaire
+        elif touche == 6:  # Sommaire
             m.resetzones()
+            zone = 1
             self.changeState(self.stateWelcome)
+        else:
+            self.changeState(self.stateEuro)
 
     def stateEnterData2(self, entering):  # Enter Birthday and hour
+        x=1
         print("State Enter Birthday / Hour")
         m.canblock(6, 20, 1)
-        global lang, sltime, data_p, data
-        zone = 1
+        global lang, sltime, data_p, data, zone
+        #zone = 1
         m.zone(10, 11, 2, '', m.blanc)
         m.zone(10, 20, 2, '', m.blanc)
         m.zone(10, 30, 4, '', m.blanc)
@@ -995,29 +1112,36 @@ class StateMachine:
         if touche == 1:
             # CHECK Input
             n = ["day", "month", "year", "hours", "minutes"]
-            for x in range(0, 4):
+            for x in range(0, 5):
                 if m.zones[x]['texte'] == "":
                     m.message(20, 15, 3, n[x] + " required")
+                    zone = x + 1
                     return
-            for x in range(0, 4):
+            for x in range(0, 5):
                 # print("Range x:", m.zones[x]['texte'])
                 if not m.zones[x]['texte'].isdigit():
                     m.message(20, 7, 3, "Only digits allowed in " + n[x])
+                    zone = x + 1
                     return
             if not int(m.zones[0]['texte']) in range(1, 32):
                 m.message(20, 7, 3, "Not in range " + n[0])
+                zone =  1
                 return
             if not int(m.zones[1]['texte']) in range(1, 13):
                 m.message(20, 7, 3, "Not in range " + n[1])
+                zone = 2
                 return
             if not int(m.zones[2]['texte']) in range(1800, 2400):
                 m.message(20, 7, 3, "Not in range " + n[2])
+                zone = 3
                 return
             if not int(m.zones[3]['texte']) in range(0, 24):
                 m.message(20, 7, 3, "Not in range " + n[3])
+                zone = 4
                 return
             if not int(m.zones[4]['texte']) in range(0, 60):
                 m.message(20, 7, 3, "Not in range " + n[4])
+                zone = 5
                 return
 
             data_p.extend(
@@ -1028,6 +1152,7 @@ class StateMachine:
             # print(" + Datum DATA_p: ", data_p)
             m.resetzones()
             self.changeState(self.stateEnterData3)
+
         if touche == 6:  # Sommaire
             m.resetzones()
             self.changeState(self.stateWelcome)
@@ -1059,7 +1184,7 @@ class StateMachine:
                 break
             if touche == 5:
                 break
-        if touche == 1:
+        if touche == 1: #### GUCKENHIER
             print("CHECK Input")
             n = ["Place of Birth", "Country of Birth", "Language to answer"]
             for x in range(0, 1):
@@ -1072,18 +1197,17 @@ class StateMachine:
                 data_p.extend([m.zones[0]['texte'], m.zones[1]['texte']])
                 lang_answ = get_language_by_country_code(m.zones[2]['texte'])
                 # *****************************************************************************
-                dat_ast = [data_p[0], data_p[1], data_p[2], data_p[3], data_p[4], data_p[5], data_p[6], data_p[7]]
-                get_data_astro(dat_ast, str(m.zones[2]['texte']))
-                # thread_1 = Thread(target=get_data_astro, args=(dat_ast, str(m.zones[2]['texte']))) # get_data_astro(dat_ast)
-                # thread_2 = Thread(target=self.changeState, args=(self.stateWaitForAnswer1,))
-                # thread_1.start()
-                # time.sleep(2)
-                # thread_2.start()
-                # while thread_1.is_alive():
-                # print("wait")
-                # kanye = AstrologicalSubject("Sebastian", 1966, 12, 27, 17, 45,"Bielefeld", "DE", "",)
-                # language = get_language_by_country_code(str(m.zones[2]['texte']))
-                data_astro = ("Answer in " + language +
+
+            dat_ast = [data_p[0], data_p[1], data_p[2], data_p[3], data_p[4], data_p[5], data_p[6], data_p[7]]
+            x = get_data_astro(dat_ast, str(m.zones[2]['texte']))
+                
+            if x == "Error":
+                print("Ausgabe X: ",x)
+                m.resetzones()
+                self.changeState(self.stateEnterData3)
+                return
+                
+            data_astro = ("Answer in " + language +
                               ", " + data_gender +
                               ", Astrological data: " + str(kanye) +
                               ", Sign: " + signs(kanye.sun['sign']) +
@@ -1092,10 +1216,10 @@ class StateMachine:
                               ", Element Moon: " + kanye.moon.element +
                               ", Use also numerological Data."
                               )
-                print(data_astro)
-                m.resetzones()
-                self.changeState(self.stateEnterQuest)
-        if touche == 6:  # Sommaire
+            print(data_astro)
+            m.resetzones()
+            self.changeState(self.stateEnterQuest)
+        elif touche == 6:  # Sommaire
             m.resetzones()
             self.changeState(self.stateWelcome)
 
@@ -1129,8 +1253,8 @@ class StateMachine:
         m.resetzones()
         touche = 0
         m.pos(4, 2)
-        m.scale(3)
-        m._print("Ta question?")
+        m.scale(1)
+        m._print(transl("p10t17a"))
 
         # m.zone(ligne, colonne, longueur, texte, couleur)
         m.zone(7, 2, 38, "", m.blanc)
@@ -1187,8 +1311,9 @@ class StateMachine:
 
     # ****************************************
     def stateWaitForAnswer2(self, entering):
-        global answer, message, thread_1, data
+        global answer, message, thread_1, data, data_p
         print("State Wait2")
+        #print(data_p)
         answer = ""
         r = usbRelaysCheck()
         print("What says relais? ", r)
@@ -1205,15 +1330,15 @@ class StateMachine:
                 m.scale(3)
                 m._print(str(x))
                 time.sleep(1)
-                if r:
-                    if x > 2 and x < 5:
-                        relay.set_state(4, True)
-                    else:
-                        relay.set_state(4, False)
+                
+                if 2 < x < 5 and r:
+                    relay.set_state(4, True) 
+                elif r:
+                    relay.set_state(4, False)
 
                 if not thread_1.is_alive():
                     
-                    if relay:
+                    if r:
                         relay.set_state(1, False)
                     break
 
@@ -1221,7 +1346,7 @@ class StateMachine:
 
     # ****************************************
     def stateSend(self, entering):
-        global message, p, pV, answer, lang, data, data_p
+        global message, p, pV, answer, lang, data, data_p, run
 
         # answer = chatbot(message)
 
@@ -1235,7 +1360,7 @@ class StateMachine:
         # file_content = file.read()
         file_content = answer
         lines = split_string_into_lines(file_content, max_line_length=39)
-        print_lines = split_string_into_lines(file_content, max_line_length=32)
+        print_lines = split_string_into_lines(file_content, max_line_length=48)
 
         print("Anzahl Zeilen", len(lines))  # anzahl zeilen
         # print(pV)
@@ -1257,11 +1382,9 @@ class StateMachine:
             if len(lines) > 0:  # affichage
                 # entête sur 2 lignes + séparation
                 m.pos(0)
-                m._print("TEST3")  # transl("p5t1"))
-                if lines != '':
-                    # m.pos(0, 36)
-                    m.color(m.bleu)
-                    m._print(str(len(lines)))
+                m._print(transl("p10t22"))
+                m.pos(1)
+                m._print(str(data_p[0]))
                 m.pos(2)
                 m.color(m.bleu)
                 m.plot('̶', 40)
@@ -1394,9 +1517,10 @@ class StateMachine:
                 # print("./pics/code_" + str(z) + ".png")
                 if pV == True:
                     p.text("\n")
-                    p.image("./WM/ww.png")
+                    p.set(font='b', height=2, width=2, align='center')
+                    p.image("./WM/ww.png", impl='bitImageColumn')
                     p.text("\n")
-                    p.image("./WM/fortune.png")
+                    p.image("./WM/fortune.png", impl='bitImageColumn')
                     p.set(font='a', height=2, width=1, align='center')  # , text_type='bold')
                     p.text("\n \n")
                     p.set(font='a', height=1, width=1, align='center')  # , text_type='bold')
@@ -1410,13 +1534,17 @@ class StateMachine:
                     p.text("\n More informations or \n")
                     p.text("share your experience\n")
                     p.text("check the QR code!\n")
-                    # p.qr('WISH WIZARD PROJECT \n ' + answer, 0, 5, 2)
-                    p.qr('WISH WIZARD PROJECT \n https://www.facebook.com/wishwizardproject', 0, 5, 2)
-                    # p.set(font='b', height=2, width=2, align='center') #, text_type='bold')
+                    p.set(font='b', height=2, width=2, align='center')
+                    p.qr('WISH WIZARD PROJECT \n https://www.facebook.com/wishwizardproject', 0, 5, 2, impl='bitImageColumn')
+                    p.cut("PART")
+                    p.set(font='a', height=2, width=2, align='center') #, text_type='bold')
                     p.text("_________________________")
                     p.text("\n \n")
-                    p.set(align='center')
-                    p.image("./WM/pics/code_" + str(z) + ".png")
+                    p.text(transl("p11t1"))
+                    p.text(transl("p11t2"))
+                    p.ln()
+                    #p.set(align='center')
+                    p.image("./WM/pics/code_" + str(z) + ".png", impl='bitImageColumn')
                     p.text("\n")
                     p.text("_________________________")
                     p.cut()
@@ -1441,9 +1569,13 @@ class StateMachine:
             # choix1 = ""
             print("Go to sleeper")
             m.resetzones()
+            #ser.write("OK\n".encode('utf-8'))
+            run = True
             self.changeState(self.stateWelcome)
         if touche == m.sommaire:
             m.resetzones()
+            #ser.write("OK\n".encode('utf-8'))
+            run = True
             self.changeState(self.stateWelcome)
 
 
@@ -1451,7 +1583,7 @@ class StateMachine:
 # Program entry point
 ###
 def main():
-    global data, ver
+    global data, ver, thread_0, run
 
     # Define Version
     ver = "0.1"
@@ -1497,6 +1629,11 @@ def main():
     else:
         (choice, ou) = ('', '')
 
+    # Listen to Moneyeur
+    ser = find_arduino_port()
+    thread_0 = Thread(target=listener)
+    #thread_0.start()
+    run = True
     print(" ")
     ###
     # Main loop
