@@ -5,13 +5,24 @@
 # And the Wishwizardteam Olli, Holger, Mephy und allen anderen.
 # *************************************************************
 import serial.tools.list_ports
-import csv, sys, pynitel, json
-import time, configparser, random
-import pyhid_usb_relay, requests
+import csv, sys, pynitel, json, serial
+import time, configparser, random, os
+import pyhid_usb_relay, requests, qrcode
+from numpy import array
+from PIL import Image as Image1
 from openai import OpenAI
 from threading import Thread
 from escpos.printer import *
 from kerykeion import AstrologicalSubject  # ,  Report
+from datetime import datetime
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import landscape
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfgen import canvas
+
 
 
 ####
@@ -19,6 +30,71 @@ from kerykeion import AstrologicalSubject  # ,  Report
 # Utility functions
 ####
 # ##****** replace short sign to long
+# Funktion zum Erstellen der PDF
+def create_pdf(output_filename, text):
+    # Dokument erstellen mit benutzerdefinierten Seitenmaßen
+    width, height = 152 , 600
+    doc = SimpleDocTemplate(output_filename, pagesize=(width, height), leftMargin=0, rightMargin=0, topMargin=0, bottomMargin=0)
+
+    # Styles für den Text
+    styles = getSampleStyleSheet()
+    custom_style = ParagraphStyle(
+        'CustomStyle',
+        parent=styles['Normal'],
+        fontSize=8,
+        leftIndent=10,
+        topIndent=height - 30
+    )
+
+    # Inhalt des Dokuments
+    content = []
+
+    # Grafik hinzufügen
+    image_path = "./WM/fortune.png"
+    image = Image(image_path, width=300, height=200)
+    
+    # Position der Grafik anpassen
+    image.drawWidth = 140
+    image.drawHeight = 30
+    content.append(image)
+
+    # Text hinzufügen
+    content.append(Paragraph("**********************************", custom_style))
+    content.append(Paragraph(text, custom_style))
+
+    # Das Dokument erstellen und speichern
+    doc.build(content)
+
+def generate_unique_filename(file_path):
+    # Holen Sie den Basisnamen der Datei ohne Pfad
+    file_name = os.path.basename(file_path)
+    # Generieren Sie einen eindeutigen Dateinamen basierend auf dem aktuellen Datum und der Uhrzeit
+    unique_name = datetime.now().strftime("%Y-%m-%d_%H-%M_") + file_name
+    return unique_name
+
+def upload_pdf_to_server(pdf_file_path):
+    global upload
+    url = 'https://artphone.fr/upload.php'  # URL des Upload-Skripts auf dem Server
+
+    unique_filename = generate_unique_filename(pdf_file_path)
+
+    files = {'file': (unique_filename, open(pdf_file_path, 'rb'))}  # Benennen Sie die Datei um
+
+    # Senden der POST-Anfrage mit der PDF-Datei und dem eindeutigen Dateinamen
+    if upload == False:
+        response = requests.post(url, files=files)
+
+    if response.status_code == 200:
+        print("Datei erfolgreich hochgeladen.")
+        print("Die Datei ist unter folgendem Link verfügbar:", "https://artphone.fr/mt/" + unique_filename)
+        # Löschen der ursprünglichen Datei nach dem Hochladen
+        os.remove(pdf_file_path)
+        print("Ursprüngliche Datei erfolgreich gelöscht:", pdf_file_path)
+        upload = True
+    else:
+        print("Fehler beim Hochladen der Datei:", response.status_code)
+    return("https://artphone.fr/mt/" + unique_filename)
+
 def listener():
     global money, run, ser
     if ser:
@@ -350,6 +426,37 @@ def split_string_into_lines(text, max_line_length=40):
         lines.append(current_line)
 
     return lines
+def konvertiere_zu_8_graustufen(quellpfad, max_breite, max_hoehe, ziel_pfad):    
+    bild = Image1.open(quellpfad)    
+    bild.thumbnail((max_breite, max_hoehe))    
+    bild = bild.convert('L')    
+    bild = bild.quantize(colors=2)    
+    bild.save(ziel_pfad)
+    
+def convert_to_minitel(image_data, width, height, block_width):
+    minitel_data = []
+    for y in range(0, height, 3):
+        for x in range(0, width, 2):
+            minitel_value = 0
+            for i in range(3):
+                for j in range(2):
+                    if (y + i) * width + x + j < len(image_data):
+                        pixel_value = int(image_data[(y + i) * width + x + j])
+                        minitel_value += pixel_value * (2 ** (i * 2 + j))           
+            minitel_data.append(minitel_value)
+    # Format to lines
+    formatted_data = [minitel_data[i:i + block_width] for i in range(0, len(minitel_data), block_width)]
+    return formatted_data
+
+def array_to_hex(row):
+    hex_row = [hex(value)[2:].zfill(2) for value in row]
+    return ' '.join(hex_row)
+
+def send_to_mini(result):
+    for row in result:
+        hex_row = array_to_hex(row)
+        print(hex_row)
+
 def code(user_input):
     x = ""
     data = [[0, '0x20'], [1, '0x21'], [2, '0x22'], [3, '0x23'], [4, '0x24'], [5, '0x25'], [6, '0x26'], [7, '0x27'],
@@ -371,6 +478,57 @@ def code(user_input):
     user_input = int(user_input)
     hex_value, decimal_value = data[int(user_input)]
     return decimal_value
+def qrmaker(address):
+    img = qrcode.make('URL:' + address, border=0)
+    #img = qrcode.make('URL:https://artphone.fr/mt/2024-04-04_13-12_SEB.pdf', border=0)
+
+    #print(type(img))  # qrcode.image.pil.PilImage
+    img.save("base_image.png")
+    quellpfad = 'base_image.png'  # Passe dies an den Dateipfad deines Bildes an
+    zielbreite = 80
+    zielhöhe = 72 #72, 66, (60, 48, 36 depends on data)
+    ziel_pfad = 'target.png'  # Passe dies an den gewünschten Dateipfad für das Ausgabebild an
+
+    konvertiere_zu_8_graustufen(quellpfad, zielbreite, zielhöhe, ziel_pfad)
+
+    image = Image1.open("target.png")
+    image_width = image.size[0]
+    image_height = image.size[1]
+    block_width = int(image_width / 2) # Anzahl der Bytes pro Zeile im resultierenden Array
+    image_array = array(image.getdata())
+    minitel_result = convert_to_minitel(image_array, image_width, image_height, block_width)
+
+    # Prepare output minitel*****************
+    center_side_h = int((40 - image_width/2) / 2)+1 # horizoantal
+    center_side_w = int((24 - image_height/3) / 2)+1 # Vertical
+    r = center_side_w
+    print("Widht: ", image_width, " Height: ", image_height, " Centerside: " ,center_side_h, center_side_w)
+
+    # Write to Minitel ********************************
+   
+    m.home()
+    m.pos(0)
+    m._print('Scan for Download:')
+    m.pos(r,center_side_h)
+    for row in minitel_result:        
+        for entry in row:        
+            m.gr()
+            m.sendchr(int(code(entry),16))       
+        r = r+1
+        m.pos(r,center_side_h)
+        print()
+    m.text()
+    while True:
+        (choix1, touche) = m.input(0, 40, 1, sltime, "")
+
+        if touche != "":
+            break
+        elif choix1 != "":
+            break
+
+    if touche != "" or choix1 != "":
+            return
+        
 
 ###
 # State machine aka "The brain"
@@ -798,9 +956,9 @@ class StateMachine:
 
     def stateWelcome(self, entering):
         print("State Welcome")
-        global lang, sltime, data, answer, run, zone
+        global lang, sltime, data, answer, run, zone, upload
         zone = 1
-
+        upload = False
         answer = ""
         touche = 0
         choix1 = ""
@@ -1346,10 +1504,10 @@ class StateMachine:
 
     # ****************************************
     def stateSend(self, entering):
-        global message, p, pV, answer, lang, data, data_p, run
+        global message, p, pV, answer, lang, data, data_p, run, upload
 
         # answer = chatbot(message)
-
+        #link = ""
         answer = answer.replace("œ", "oe")
         answer = answer.replace("Œ", "Oe")
         print("State Send")
@@ -1434,9 +1592,9 @@ class StateMachine:
                     m._print('_RETOUR')
 
                 if len(lines) > page * 18:
-                    m.pos(23, 21)
+                    m.pos(23, 26)
                     m.color(m.vert)
-                    m._print("suivante")
+                    m._print("suiv.")
                     m.pos(23, 34)
                     m.underline()
                     m._print(' ')
@@ -1447,13 +1605,14 @@ class StateMachine:
 
                 if pV == True:
                     m.pos(22, 1)
-                    m._print("PRINT Y/N   + → ")
+                    m._print("Print: P + → ENVOI")
                     m.pos(22, 16)
                     m.inverse()
                     m.color(m.cyan)
                     m._print("ENVOI")
                     m.cursor(True)
-                m.pos(23, 5)
+                m.pos(23, 1)
+                m._print("Download: D + → ENVOI")
 
                 m.pos(24, 1)
                 m.color(m.vert)
@@ -1466,7 +1625,7 @@ class StateMachine:
                 m._print(' ')
                 m.inverse()
                 m.color(m.cyan)
-                m.pos(24, 26)
+                m.pos(24, 28)
                 m.color(m.vert)
                 m._print("Home")
                 m.pos(24, 33)
@@ -1486,6 +1645,8 @@ class StateMachine:
             # ****** check for integer
             if choix == "y" or choix == "Y":
                 choix1 = "Y"
+            elif choix == "d" or choix == "D":
+                choix1 = "D"
             else:
                 choix1 = ""
             if not isinstance(choix, int):
@@ -1511,6 +1672,19 @@ class StateMachine:
                     page = page - 1
                 else:
                     m.bip()
+                #**********************QRCODE und Data upload
+            elif touche == m.envoi and choix1 == "D":
+                if upload == False:
+                    output_filename = str(data_p[0]) + ".pdf"
+                    print(output_filename)
+                    create_pdf(output_filename, answer)
+
+                    pdf_path = output_filename  # Passe dies entsprechend deinem System an
+                    link = upload_pdf_to_server(pdf_path)
+                    qrmaker(link)
+                elif upload == True:
+                    qrmaker(link)
+                
             elif touche == m.envoi and choix1 == "Y":
                 # print("angekommen")
                 z = random.randint(1, 24)
