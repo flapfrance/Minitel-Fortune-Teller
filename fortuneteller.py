@@ -21,6 +21,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Image
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import landscape
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
 from reportlab.pdfgen import canvas
 
 
@@ -29,13 +30,15 @@ from reportlab.pdfgen import canvas
 
 # Utility functions
 ####
-# ##****** replace short sign to long
+# ##****** replace short sign to long 
 # Funktion zum Erstellen der PDF
 def create_pdf(output_filename, text):
+    global lang2
+    zz = random.randint(1, 24)
     # Dokument erstellen mit benutzerdefinierten Seitenmaßen
     width, height = 152 , 600
     doc = SimpleDocTemplate(output_filename, pagesize=(width, height), leftMargin=0, rightMargin=0, topMargin=0, bottomMargin=0)
-
+    
     # Styles für den Text
     styles = getSampleStyleSheet()
     custom_style = ParagraphStyle(
@@ -43,7 +46,8 @@ def create_pdf(output_filename, text):
         parent=styles['Normal'],
         fontSize=8,
         leftIndent=10,
-        topIndent=height - 30
+        topIndent=height - 30,
+        alignment=TA_CENTER  # Ausrichtung des Absatzes zentrieren
     )
 
     # Inhalt des Dokuments
@@ -62,8 +66,25 @@ def create_pdf(output_filename, text):
     content.append(Paragraph("**********************************", custom_style))
     content.append(Paragraph(text, custom_style))
 
+    content.append(Paragraph("**********************************", custom_style))
+    content.append(Paragraph("                                  ", custom_style))
+    content.append(Paragraph(transl("p11t1", lang2), custom_style))
+    content.append(Paragraph(transl("p11t2", lang2), custom_style))
+    content.append(Paragraph("                                  ", custom_style))
+
+    # Grafik hinzufügen
+    image_path = "./WM/pics/code_" + str(zz) + ".png"
+    image = Image(image_path, width=300, height=200)
+    
+    # Position der Grafik anpassen
+    image.drawWidth = 140
+    image.drawHeight = 30
+    content.append(image)
+
+    
     # Das Dokument erstellen und speichern
     doc.build(content)
+    return(zz)
 
 def generate_unique_filename(file_path):
     # Holen Sie den Basisnamen der Datei ohne Pfad
@@ -243,18 +264,28 @@ def getMilliseconds():
     return int(round(time.time() * 1000))
 
 
-def transl(beschreibung):
-    global lang, data
+def transl(beschreibung, la = ""):
+    global lang, data, lang2
     # Überprüfen, ob die Beschreibung im Datenobjekt vorhanden ist
+        
     if beschreibung in data:
         # Überprüfen, ob die Spaltenüberschrift im Datenobjekt vorhanden ist
-        if lang in data[beschreibung]:
-            # Wert aus dem Datenobjekt abrufen und zurückgeben
-            wert = data[beschreibung][lang]
-            return wert
+        if la == "":
+            if lang in data[beschreibung]:
+                # Wert aus dem Datenobjekt abrufen und zurückgeben
+                wert = data[beschreibung][lang]
+                return wert
+            else:
+                print("Spaltenüberschrift nicht gefunden: ")
+                return "problem"
         else:
-            print("Spaltenüberschrift nicht gefunden: ")
-            return "problem"
+            if la in data[beschreibung]:
+                # Wert aus dem Datenobjekt abrufen und zurückgeben
+                wert = data[beschreibung][la]
+                return wert
+            else:
+                print("Spaltenüberschrift nicht gefunden: ")
+                return "problem"
     else:
         print("Beschreibung nicht gefunden: ", beschreibung)
 
@@ -329,7 +360,7 @@ def printCheck():
 
 # Function to send a message to the OpenAI chatbot model and return its response
 def send_message(message_log):
-    global answer, client
+    global answer, client, elem
     config = configparser.ConfigParser()
     config.read('settings.ini')
     # Use OpenAI's ChatCompletion API to get the chatbot's response
@@ -353,7 +384,8 @@ def send_message(message_log):
 
 
 def chatbot(messa):
-    global answer, client
+    global answer, client, elem, data_p, z, link
+        
     config = configparser.ConfigParser()
     config.read('settings.ini')
     # Initialize the conversation history with a message from the chatbot
@@ -402,7 +434,17 @@ def chatbot(messa):
 
             # Add the chatbot's response to the conversation history and print it to the console
             message_log.append({"role": "assistant", "content": response})
+
         answer = response
+        answer = answer.replace("œ", "oe")
+        answer = answer.replace("Œ", "Oe")
+        output_filename = str(data_p[0]) + ".pdf"
+        print(output_filename)
+        z = create_pdf(output_filename, answer)
+        
+
+        pdf_path = output_filename  # Passe dies entsprechend deinem System an
+        link = upload_pdf_to_server(pdf_path)
         return
 
 
@@ -516,7 +558,7 @@ def qrmaker(address):
             m.sendchr(int(code(entry),16))       
         r = r+1
         m.pos(r,center_side_h)
-        print()
+        #print()
     m.text()
     while True:
         (choix1, touche) = m.input(0, 40, 1, sltime, "")
@@ -580,6 +622,7 @@ class StateMachine:
         config.read('settings.ini')
         sltime = config['prefs']['timer']
         lang = config['prefs']['lang_code']
+        lang2 = ""
         speed = int(config['prefs']['speed'])
         print("Language: ", lang, " Screensaver/s: ", sltime)
         m = pynitel.Pynitel(serial.Serial('/dev/ttyUSB0', 1200, parity=serial.PARITY_EVEN, bytesize=7, timeout=2))
@@ -1095,9 +1138,10 @@ class StateMachine:
         self.changeState(self.stateWelcome)
     # ****************************************  ASTRO DATA
     def stateEnterData1(self, entering):  # Enter Name and Sexe
-        global data, lang, sltime, data_p, data_gender, run, zone
+        global data, lang, sltime, data_p, data_gender, run, zone, link
         print("State DATA1", run)
         # data_p = ()
+        link = ""
         annu_save = ""
         print("State Enter Name / Sexe")
 
@@ -1318,7 +1362,7 @@ class StateMachine:
     def stateEnterData3(self, entering):  # Enter Town and country
         print("State Enter Town / Country")
         m.canblock(6, 20, 1)
-        global lang, sltime, data_p, data_astro, data, data_gender, kanye, language
+        global lang, sltime, data_p, data_astro, data, data_gender, kanye, language, lang2
         zone = 1
         m.zone(10, 8, 23, '', m.blanc)
         m.zone(15, 19, 2, '', m.blanc)
@@ -1349,13 +1393,15 @@ class StateMachine:
                 if m.zones[x]['texte'] == "":
                     m.message(21, 15, 3, n[x] + " required")
                     return
-                if m.zones[2]['texte'] not in ["FR", "DE", "EN", "ES", "IT"]:
+                if m.zones[2]['texte'] not in ["FR", "DE", "EN", "ES"]:
                     m.message(21, 15, 3, n[2] + " not in list")
                     return
                 data_p.extend([m.zones[0]['texte'], m.zones[1]['texte']])
+                
                 lang_answ = get_language_by_country_code(m.zones[2]['texte'])
                 # *****************************************************************************
-
+            lang2 = str(m.zones[2]['texte'])
+            print("Zweite Sprache: " + lang2)
             dat_ast = [data_p[0], data_p[1], data_p[2], data_p[3], data_p[4], data_p[5], data_p[6], data_p[7]]
             x = get_data_astro(dat_ast, str(m.zones[2]['texte']))
                 
@@ -1504,31 +1550,23 @@ class StateMachine:
 
     # ****************************************
     def stateSend(self, entering):
-        global message, p, pV, answer, lang, data, data_p, run, upload
+        global message, p, pV, answer, lang, data, data_p, run, upload, z, link
 
-        # answer = chatbot(message)
-        #link = ""
-        answer = answer.replace("œ", "oe")
-        answer = answer.replace("Œ", "Oe")
+        
+        
         print("State Send")
-        # print(data_p)
-        # pV = printCheck()
-        # *****prepa array
-        # with open("test.txt", "r") as file:
-        # file_content = file.read()
+        
         file_content = answer
         lines = split_string_into_lines(file_content, max_line_length=39)
         print_lines = split_string_into_lines(file_content, max_line_length=48)
-
+        
         print("Anzahl Zeilen", len(lines))  # anzahl zeilen
         # print(pV)
         m.home()
         m.pos(1, 1)
         page = 1
 
-        # (choix, touche) = m.input(21, 29, 1, sltime)
-        # else:
-        # (choix, touche) = m.input(21, 1, 0, sltime)
+        
         # plusieurs pages ?
         if len(lines) > 18:
             m.pos(0, 33)
@@ -1579,11 +1617,11 @@ class StateMachine:
 
                 if page > 1:
                     if len(lines) > page * 18:  # place pour le SUITE
-                        m.pos(22, 22)
+                        m.pos(22, 26)
                     else:
-                        m.pos(22, 22)
+                        m.pos(22, 26)
                     m.color(m.vert)
-                    m._print("precedent")
+                    m._print("prec.")
                     m.pos(22, 33)
                     m.underline()
                     m._print(' ')
@@ -1605,24 +1643,28 @@ class StateMachine:
 
                 if pV == True:
                     m.pos(22, 1)
-                    m._print("Print: P + → ENVOI")
-                    m.pos(22, 16)
+                    m._print("Print:    P + → ")
+                    m.pos(22, 17)
                     m.inverse()
                     m.color(m.cyan)
                     m._print("ENVOI")
                     m.cursor(True)
                 m.pos(23, 1)
                 m._print("Download: D + → ENVOI")
+                m.pos(23, 17)
+                m.inverse()
+                m.color(m.cyan)
+                m._print("ENVOI")
 
                 m.pos(24, 1)
                 m.color(m.vert)
-                m._print("Aide")
-                m.pos(24, 11)
+                m._print("Aide: →")
+                m.pos(24, 17)
                 m.inverse()
                 m.color(m.cyan)
-                m._print(' GUIDE')
-                m.underline()
-                m._print(' ')
+                m._print('GUIDE')
+                #m.underline()
+                #m._print('')
                 m.inverse()
                 m.color(m.cyan)
                 m.pos(24, 28)
@@ -1638,15 +1680,17 @@ class StateMachine:
 
                 # attente saisie            
             if pV == True:
-                (choix, touche) = m.input(22, 11, 1, sltime)
+                (choix, touche) = m.input(0, 38, 1, sltime)
             else:
-                (choix, touche) = m.input(22, 1, 1, sltime)
+                (choix, touche) = m.input(0, 38, 1, sltime)
                 m.cursor(False)
             # ****** check for integer
             if choix == "y" or choix == "Y":
                 choix1 = "Y"
             elif choix == "d" or choix == "D":
                 choix1 = "D"
+            elif choix == "p" or choix == "P":
+                choix1 = "P"
             else:
                 choix1 = ""
             if not isinstance(choix, int):
@@ -1675,19 +1719,19 @@ class StateMachine:
                 #**********************QRCODE und Data upload
             elif touche == m.envoi and choix1 == "D":
                 if upload == False:
-                    output_filename = str(data_p[0]) + ".pdf"
-                    print(output_filename)
-                    create_pdf(output_filename, answer)
+                    #output_filename = str(data_p[0]) + ".pdf"
+                    #print(output_filename)
+                    #z = create_pdf(output_filename, answer)
 
-                    pdf_path = output_filename  # Passe dies entsprechend deinem System an
-                    link = upload_pdf_to_server(pdf_path)
+                    #pdf_path = output_filename  # Passe dies entsprechend deinem System an
+                    #link = upload_pdf_to_server(pdf_path)
                     qrmaker(link)
                 elif upload == True:
                     qrmaker(link)
                 
-            elif touche == m.envoi and choix1 == "Y":
-                # print("angekommen")
-                z = random.randint(1, 24)
+            elif touche == m.envoi and choix1 == "P":
+                print("Printstart")
+                #z = random.randint(1, 24)
                 # print("./pics/code_" + str(z) + ".png")
                 if pV == True:
                     p.text("\n")
