@@ -119,7 +119,7 @@ p10t13;Ville de naissance;Town of birth;Geburtsstadt;Town;;;;
 p10t14;Pays de naissance;Country of birth;Geburtsland;Country;;;;
 p10t15;Langue de la reponse;Language of answer;Antwortsprache;Language of answer;;;;
 p10t16;(code pays en deux lettres);(two letter code);(Zweibuchstaben-Ländercode);(two letter code);;;;
-p10t16a;(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);(FR/EN/DE/ES/IT);;;;
+p10t16a;(FR/EN/DE/ES);(FR/EN/DE/ES);(FR/EN/DE/ES);(FR/EN/DE/ES);;;;
 p10t17;; = requis;; = Field required;; = erforderlich;; = obligatorio
 p10t17a;Une question particulier?;A personal question?;Eine Extrafrage?;A personal question?;;;;
 p10t18;Ligne suiv.;Next Line → ;Naechste   →;Linea siguiente → ;;;;
