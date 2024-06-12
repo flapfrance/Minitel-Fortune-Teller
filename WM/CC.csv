@@ -1,0 +1,249 @@
+;Country;Language
+AF;Afghanistan;English
+AX;Aland Islands;English
+AL;Albania;English
+DZ;Algeria;English
+AS;American Samoa;English
+AD;Andorra;English
+AO;Angola;English
+AI;Anguilla;English
+AQ;Antarctica ;English
+AG;Antigua and Barbuda;English
+AR;Argentina;Spanish
+AM;Armenia;English
+AW;Aruba;English
+AU;Australia;English
+AT;Austria;Deutsch
+AZ;Azerbaijan;English
+BS;Bahamas;English
+BH;Bahrain;English
+BD;Bangladesh;English
+BB;Barbados;English
+BY;Belarus;English
+BE;Belgium;English
+BZ;Belize;English
+BJ;Benin;English
+BM;Bermuda;English
+BT;Bhutan;English
+BO;Bolivia;English
+BA;Bosnia and Herzegovina;English
+BW;Botswana;English
+BV;Bouvet Island;English
+BR;Brazil;Spanish
+VG;British Virgin Islands;English
+IO;British Indian Ocean Territory;English
+BN;Brunei Darussalam;English
+BG;Bulgaria;English
+BF;Burkina Faso;English
+BI;Burundi;English
+KH;Cambodia;English
+CM;Cameroon;English
+CA;Canada ;English
+CV;Cape Verde;English
+KY;Cayman Islands ;English
+CF;Central African Republic;English
+TD;Chad;English
+CL;Chile;English
+CN;China;English
+HK;Hong Kong, SAR China;English
+MO;Macao, SAR China;English
+CX;Christmas Island;English
+CC;Cocos (Keeling) Islands;English
+CO;Colombia;English
+KM;Comoros;English
+CG;Congo (Brazzaville) ;English
+CD;Congo, (Kinshasa);English
+CK;Cook Islands ;English
+CR;Costa Rica;English
+CI;Côte d'Ivoire;English
+HR;Croatia;English
+CU;Cuba;English
+CY;Cyprus;English
+CZ;Czech Republic;English
+DK;Denmark;English
+DJ;Djibouti;English
+DM;Dominica;English
+DO;Dominican Republic;English
+EC;Ecuador;English
+EG;Egypt;English
+SV;El Salvador;English
+GQ;Equatorial Guinea;English
+ER;Eritrea;English
+EE;Estonia;English
+ET;Ethiopia;English
+FK;Falkland Islands (Malvinas) ;English
+FO;Faroe Islands;English
+FJ;Fiji;English
+FI;Finland;English
+FR;France;French
+GF;French Guiana;English
+PF;French Polynesia;English
+TF;French Southern Territories ;English
+GA;Gabon;English
+GM;Gambia;English
+GE;Georgia;English
+DE;Germany ;Deutsch
+GH;Ghana;English
+GI;Gibraltar ;English
+GR;Greece;English
+GL;Greenland;English
+GD;Grenada;English
+GP;Guadeloupe;English
+GU;Guam;English
+GT;Guatemala;English
+GG;Guernsey;English
+GN;Guinea;English
+GW;Guinea-Bissau;English
+GY;Guyana;English
+HT;Haiti;English
+HM;Heard and Mcdonald Islands;English
+VA;Holy See (Vatican City State);English
+HN;Honduras;English
+HU;Hungary;English
+IS;Iceland;English
+IN;India;English
+ID;Indonesia;English
+IR;Iran, Islamic Republic of;English
+IQ;Iraq;English
+IE;Ireland;English
+IM;Isle of Man ;English
+IL;Israel ;English
+IT;Italy ;English
+JM;Jamaica;English
+JP;Japan;English
+JE;Jersey;English
+JO;Jordan;English
+KZ;Kazakhstan;English
+KE;Kenya;English
+KI;Kiribati;English
+KP;Korea (North);English
+KR;Korea (South);English
+KW;Kuwait;English
+KG;Kyrgyzstan;English
+LA;Lao PDR;English
+LV;Latvia;English
+LB;Lebanon;English
+LS;Lesotho;English
+LR;Liberia;English
+LY;Libya;English
+LI;Liechtenstein;English
+LT;Lithuania;English
+LU;Luxembourg;English
+MK;Macedonia, Republic of;English
+MG;Madagascar;English
+MW;Malawi;English
+MY;Malaysia;English
+MV;Maldives;English
+ML;Mali;English
+MT;Malta;English
+MH;Marshall Islands;English
+MQ;Martinique;English
+MR;Mauritania;English
+MU;Mauritius;English
+YT;Mayotte;English
+MX;Mexico;English
+FM;Micronesia, Federated States of;English
+MD;Moldova;English
+MC;Monaco;English
+MN;Mongolia;English
+ME;Montenegro;English
+MS;Montserrat;English
+MA;Morocco;English
+MZ;Mozambique;English
+MM;Myanmar;English
+NA;Namibia;English
+NR;Nauru;English
+NP;Nepal;English
+NL;Netherlands;English
+AN;Netherlands Antilles;English
+NC;New Caledonia;English
+NZ;New Zealand;English
+NI;Nicaragua;English
+NE;Niger;English
+NG;Nigeria;English
+NU;Niue ;English
+NF;Norfolk Island;English
+MP;Northern Mariana Islands;English
+NO;Norway;English
+OM;Oman;English
+PK;Pakistan;English
+PW;Palau;English
+PS;Palestinian Territory;English
+PA;Panama;English
+PG;Papua New Guinea;English
+PY;Paraguay;English
+PE;Peru;English
+PH;Philippines;English
+PN;Pitcairn ;English
+PL;Poland;English
+PT;Portugal;English
+PR;Puerto Rico;English
+QA;Qatar;English
+RE;Réunion;English
+RO;Romania;English
+RU;Russian Federation ;English
+RW;Rwanda;English
+BL;Saint-Barthélemy;English
+SH;Saint Helena ;English
+KN;Saint Kitts and Nevis;English
+LC;Saint Lucia;English
+MF;Saint-Martin (French part);English
+PM;Saint Pierre and Miquelon ;English
+VC;Saint Vincent and Grenadines;English
+WS;Samoa;English
+SM;San Marino;English
+ST;Sao Tome and Principe;English
+SA;Saudi Arabia;English
+SN;Senegal;English
+RS;Serbia;English
+SC;Seychelles;English
+SL;Sierra Leone;English
+SG;Singapore;English
+SK;Slovakia;English
+SI;Slovenia;English
+SB;Solomon Islands;English
+SO;Somalia;English
+ZA;South Africa;English
+GS;South Georgia and the South Sandwich Islands;English
+SS;South Sudan;English
+ES;Spain;Spanish
+LK;Sri Lanka;English
+SD;Sudan;English
+SR;Suriname;English
+SJ;Svalbard and Jan Mayen Islands ;English
+SZ;Swaziland;English
+SE;Sweden;English
+CH;Switzerland;English
+SY;Syrian Arab Republic (Syria);English
+TW;Taiwan, Republic of China ;English
+TJ;Tajikistan;English
+TZ;Tanzania, United Republic of ;English
+TH;Thailand;English
+TL;Timor-Leste;English
+TG;Togo;English
+TK;Tokelau ;English
+TO;Tonga;English
+TT;Trinidad and Tobago;English
+TN;Tunisia;English
+TR;Turkey;English
+TM;Turkmenistan;English
+TC;Turks and Caicos Islands ;English
+TV;Tuvalu;English
+UG;Uganda;English
+UA;Ukraine;English
+AE;United Arab Emirates;English
+GB;United Kingdom;English
+US;United States of America;English
+UM;US Minor Outlying Islands ;English
+UY;Uruguay;English
+UZ;Uzbekistan;English
+VU;Vanuatu;English
+VE;Venezuela (Bolivarian Republic);English
+VN;Viet Nam;English
+VI;Virgin Islands, US;English
+WF;Wallis and Futuna Islands ;English
+EH;Western Sahara ;English
+YE;Yemen;English
+ZM;Zambia;English
+ZW;Zimbabwe;English
+EN;United Kingdom;English
