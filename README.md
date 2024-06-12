@@ -1,4 +1,6 @@
 # Minitel-Fortune-Teller
+LASTUPDATE 11/06/24: fortune80qr.py  With QR code and new countrycode detection, needs the CC.csv file dans le /WM 
+
 A Fortune teller using an old french minitel and AI with ChatGPT. Special thanks to cquest and his Python library: https://github.com/cquest/pynitel and all the informations found at the "Musée du minitel" : https://www.museeminitel.fr/ . Also thanks to all the friends who helped to bring this project to life.
 
 1.  Requirements: For the new Raspi-images based on Debian 12 (Bookworm), the installation of 3rd party pip components is restricted. To use them you     can install them with `pip install "package_name" --break-system-packages` .
