@@ -1,0 +1,11 @@
+openai
+pyserial
+pyhid-usb-relay
+python-escpos
+requests
+qrcode[pil]
+numpy
+Pillow
+kerykeion
+reportlab
+cairosvg

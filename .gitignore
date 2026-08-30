@@ -1,0 +1,28 @@
+# Local history and development-only tests
+archive/
+tests/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Runtime caches and generated documents
+cache/
+*.pdf
+
+# Local environments and secrets
+.venv/
+venv/
+.env
+*.env
+
+# Editor and operating-system files
+.agents/
+.codex/
+.idea/
+.vscode/
+.DS_Store
+*~

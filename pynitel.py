@@ -207,6 +207,13 @@ class Pynitel:
                 c = self.conn.read(1).decode()
                 print("Inputvalue: " ,ord(c) ," Data: " , data)
 
+                # Treat the Minitel's CHARIOT/Enter key exactly like SUITE.
+                # This advances to the next input zone or result page through
+                # the existing navigation logic.
+                if ord(c)-64 == self.chariot:
+                    self.lastkey = self.suite
+                    return(data, self.suite)
+
                 if c == '\x45' and data != '':  # annulation
                     data = ''
                     self.sendchr(20)  # Coff
@@ -231,6 +238,24 @@ class Pynitel:
                     self.conn.read(2)
                 elif c == self.PRO3:
                     self.conn.read(3)
+                elif c in ('\x1b[', '\x1bO'):
+                    # Consume complete ANSI cursor-key sequences. Without
+                    # this, their final A/B/C/D byte is inserted as text.
+                    while True:
+                        sequence_byte = self.conn.read(1).decode()
+                        if sequence_byte == '':
+                            break
+                        if '@' <= sequence_byte <= '~':
+                            break
+            elif c in ('\x08', '\x09', '\x0a', '\x0b'):
+                # Ignore raw cursor controls. Form validation is deliberately
+                # restricted to ENVOI.
+                continue
+            elif c == '\x0d':
+                # Some terminals send Enter as a raw CR rather than the
+                # Minitel SEP+CHARIOT sequence. Map that form to SUITE too.
+                self.lastkey = self.suite
+                return(data, self.suite)
             elif c >= ' ' and len(data) >= longueur:
                 #print("beep")#
                 self.bip()
@@ -426,6 +451,17 @@ class Pynitel:
 
     def accents(self, text):
         "Conversion des caractères accentués (cf STUM p 103)"
+        # Normalize typographic punctuation before UTF-8 bytes reach the
+        # Minitel. Unsupported curly quotes otherwise appear as stray letters.
+        text = text.replace('‘', "'").replace('’', "'")
+        text = text.replace('‚', "'").replace('‛', "'")
+        text = text.replace('ʼ', "'").replace('´', "'").replace('`', "'")
+        text = text.replace('“', '"').replace('”', '"')
+        text = text.replace('„', '"').replace('‟', '"')
+        text = text.replace('–', '-').replace('—', '-').replace('−', '-')
+        text = text.replace('…', '...').replace('•', '*')
+        text = text.replace('\u00a0', ' ').replace('\u202f', ' ')
+        text = text.replace('\u200b', '').replace('\u00ad', '')
         text = text.replace('à', '\x19\x41a')
         text = text.replace('â', '\x19\x43a')
         text = text.replace('ä', '\x19\x48a')

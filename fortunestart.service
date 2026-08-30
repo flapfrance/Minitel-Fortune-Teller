@@ -1,13 +1,17 @@
-# Change User, WorkingDirectory path and ExecStart path if needed.
-# Use restart=always only if the installation works smooth.
 [Unit]
-Description=mtel-start Service
+Description=Minitel Fortune Teller
 After=network-online.target
+Wants=network-online.target
+
 [Service]
-Type=idle
-User=pi
-WorkingDirectory=/home/pi/projects/fortune/
-ExecStart=/usr/bin/python /home/pi/projects/fortune/fortuneteller.py
-Restart=always
+Type=simple
+User=seb
+WorkingDirectory=/home/seb/projects/minitel/Fortune2
+EnvironmentFile=-/etc/minitel-fortune.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/seb/projects/minitel/Fortune2/.venv/bin/python /home/seb/projects/minitel/Fortune2/fortune80qr.py
+Restart=on-failure
+RestartSec=5
+
 [Install]
 WantedBy=multi-user.target
