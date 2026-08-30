@@ -31,16 +31,21 @@ coin counter uses 19200 baud.
 ## Installation on DietPi
 
 ```bash
-cd ~/projects/minitel/Fortune2
+git clone https://github.com/flapfrance/Minitel-Fortune-Teller.git
+cd Minitel-Fortune-Teller
+APP_USER="$(id -un)"
+APP_DIR="$(pwd -P)"
 sudo apt update
 sudo apt install python3-venv python3-dev build-essential pkg-config libcairo2-dev libusb-1.0-0
 python3 -m venv .venv
 .venv/bin/pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt
-sudo usermod -aG dialout seb
+sudo usermod -aG dialout "$APP_USER"
 ```
 
-Log in again or restart the system after changing the group membership.
+If the repository is already available locally, start with `cd` into that
+checkout and set `APP_USER` and `APP_DIR` as shown above. Log in again or
+restart the system after changing the group membership.
 
 Do not store the OpenAI key in `settings.ini`. It is loaded from
 `/etc/minitel-fortune.env`:
@@ -112,23 +117,30 @@ To reboot or shut down the system, enter `YES` in the corresponding field and
 confirm with `ENVOI`. The service user only needs these specific sudo rights:
 
 ```bash
-sudo visudo -f /etc/sudoers.d/minitel-fortune
-```
-
-```text
-seb ALL=(root) NOPASSWD: /usr/bin/systemctl reboot, /usr/bin/systemctl poweroff, /usr/bin/systemctl --no-block restart fortunestart.service
+APP_USER="$(id -un)"
+printf '%s ALL=(root) NOPASSWD: /usr/bin/systemctl reboot, /usr/bin/systemctl poweroff, /usr/bin/systemctl --no-block restart fortunestart.service\n' "$APP_USER" \
+  | sudo tee /etc/sudoers.d/minitel-fortune >/dev/null
+sudo chmod 440 /etc/sudoers.d/minitel-fortune
+sudo visudo -cf /etc/sudoers.d/minitel-fortune
 ```
 
 ## systemd service
 
-The provided service file is configured for
-`/home/seb/projects/minitel/Fortune2` and the virtual environment located there.
+`fortunestart.service` is a portable template. Install it from the repository
+directory after replacing `@APP_USER@` and `@APP_DIR@` with the current user and
+the absolute checkout path:
 
 ```bash
-sudo cp fortunestart.service /etc/systemd/system/
+APP_USER="$(id -un)"
+APP_DIR="$(pwd -P)"
+sed -e "s|@APP_USER@|$APP_USER|g" -e "s|@APP_DIR@|$APP_DIR|g" fortunestart.service \
+  | sudo tee /etc/systemd/system/fortunestart.service >/dev/null
 sudo systemctl daemon-reload
 sudo systemctl enable --now fortunestart.service
 ```
+
+Run these commands from a path that does not contain `|` or `&`, because those
+characters have a special meaning in the `sed` replacement expression.
 
 Check the status and follow the live log with:
 
@@ -140,8 +152,10 @@ sudo journalctl -fu fortunestart.service
 ## Updating from the development computer
 
 ```bash
-scp fortune80qr.py pynitel.py settings.ini seb@100.107.35.89:~/projects/minitel/Fortune2/
-ssh seb@100.107.35.89 'sudo systemctl restart fortunestart.service'
+REMOTE="user@hostname"
+REMOTE_DIR="projects/minitel/Fortune2"
+scp fortune80qr.py pynitel.py settings.ini "$REMOTE:$REMOTE_DIR/"
+ssh "$REMOTE" 'sudo systemctl restart fortunestart.service'
 ```
 
 Always transfer `pynitel.py` when keyboard handling or Minitel communication
@@ -150,7 +164,10 @@ has been changed.
 After changing `fortunestart.service`, also run:
 
 ```bash
-sudo cp ~/projects/minitel/Fortune2/fortunestart.service /etc/systemd/system/
+APP_USER="$(id -un)"
+APP_DIR="$(pwd -P)"
+sed -e "s|@APP_USER@|$APP_USER|g" -e "s|@APP_DIR@|$APP_DIR|g" fortunestart.service \
+  | sudo tee /etc/systemd/system/fortunestart.service >/dev/null
 sudo systemctl daemon-reload
 sudo systemctl restart fortunestart.service
 ```

@@ -5,11 +5,11 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=seb
-WorkingDirectory=/home/seb/projects/minitel/Fortune2
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@
 EnvironmentFile=-/etc/minitel-fortune.env
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/home/seb/projects/minitel/Fortune2/.venv/bin/python /home/seb/projects/minitel/Fortune2/fortune80qr.py
+ExecStart="@APP_DIR@/.venv/bin/python" "@APP_DIR@/fortune80qr.py"
 Restart=on-failure
 RestartSec=5
 
