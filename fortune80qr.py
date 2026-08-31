@@ -9,6 +9,7 @@ import csv
 import json
 import os
 import random
+import re
 import socket
 import subprocess
 import sys
@@ -517,10 +518,12 @@ def create_pdf(output_filename, text, pdf_context=None):
     return(zz)
 
 def generate_unique_filename(file_path):
-    # Holen Sie den Basisnamen der Datei ohne Pfad
-    file_name = os.path.basename(file_path)
-    file_name = file_name.replace(" ", "_")
-    # Generieren Sie einen eindeutigen Dateinamen basierend auf dem aktuellen Datum und der Uhrzeit
+    """Return an ASCII-only filename safe for both URL and server storage."""
+    file_name = unicodedata.normalize('NFKD', os.path.basename(file_path))
+    file_name = file_name.encode('ascii', 'ignore').decode('ascii')
+    file_name = re.sub(r'[^A-Za-z0-9._-]+', '_', file_name).strip('._')
+    if not file_name:
+        file_name = 'fortune.pdf'
     unique_name = datetime.now().strftime("%Y-%m-%d_%H-%M_") + file_name
     return unique_name
 
@@ -543,6 +546,13 @@ def public_pdf_link(filename):
     _, public_base_url = pdf_delivery_settings()
     return public_base_url + str(filename).lstrip('/')
 
+
+def pdf_upload_headers():
+    """Return an optional bearer token without storing secrets in the INI."""
+    token = os.environ.get('PDF_UPLOAD_TOKEN', '').strip()
+    return {'Authorization': 'Bearer ' + token} if token else {}
+
+
 def upload_pdf_to_server(pdf_file_path, unique_filename=None, publish_state=True):
     global upload, link
     upload_url, public_base_url = pdf_delivery_settings()
@@ -559,7 +569,12 @@ def upload_pdf_to_server(pdf_file_path, unique_filename=None, publish_state=True
             # leave the stream positioned partway through the PDF.
             with open(pdf_file_path, 'rb') as pdf_file:
                 files = {'file': (unique_filename, pdf_file)}
-                response = requests.post(upload_url, files=files, timeout=30)
+                response = requests.post(
+                    upload_url,
+                    files=files,
+                    headers=pdf_upload_headers(),
+                    timeout=30,
+                )
             response.raise_for_status()
             break
         except requests.RequestException as error:

@@ -13,6 +13,7 @@ thermal receipt, and as an uploadable PDF with a QR code.
 - `WM/lang.csv`: interface text in French, English, German, and Spanish
 - `WM/CC.csv`: country and language mapping
 - `fortunestart.service`: systemd service for DietPi/Raspberry Pi
+- `server/upload.php.example`: reference server endpoint for PDF uploads
 - `tests/`: hardware-independent automated tests
 - `archive/`: old program versions, assets, and historical utility scripts that
   are not used by the active application
@@ -52,6 +53,7 @@ Do not store the OpenAI key in `settings.ini`. It is loaded from
 
 ```text
 OPENAI_API_KEY=...
+PDF_UPLOAD_TOKEN=optional-shared-upload-secret
 ```
 
 The file should only be readable by root:
@@ -101,6 +103,42 @@ The PDF delivery paths are configured in `[pdf]`:
 - `upload_url`: HTTP endpoint that receives the generated PDF
 - `public_base_url`: public directory used for the QR and download link; a
   missing trailing slash is added automatically
+
+### PDF upload server
+
+[`server/upload.php.example`](server/upload.php.example) documents the server
+side expected by the application. It accepts the multipart field `file`,
+allows PDF files only, keeps the original 5 MB limit, rejects unsafe filenames,
+and stores files in an `mt` directory next to `upload.php`.
+
+Unlike the original endpoint, the example returns a non-success HTTP status for
+invalid files and storage errors. This is important because `fortune80qr.py`
+deletes its local PDF only after the server reports a successful HTTP response.
+Uploading the same filename and identical content again is treated as an
+idempotent success; different content under an existing filename is rejected.
+
+Deploy it as `upload.php` in the web directory and ensure that the PHP/web
+server user can write to the adjacent `mt` directory. For example, adapt these
+paths and ownership to the web host:
+
+```bash
+sudo install -d -o www-data -g www-data -m 0755 /var/www/example/mt
+sudo install -o root -g root -m 0644 server/upload.php.example /var/www/example/upload.php
+```
+
+Then configure matching addresses:
+
+```ini
+[pdf]
+upload_url = https://example.org/upload.php
+public_base_url = https://example.org/mt/
+```
+
+An upload secret is optional for compatibility, but strongly recommended on a
+public server. Configure the same value as `FORTUNE_UPLOAD_TOKEN` in the PHP
+runtime and as `PDF_UPLOAD_TOKEN` in `/etc/minitel-fortune.env`. Secrets must
+not be committed to `settings.ini`. The precise PHP environment configuration
+depends on the web host or PHP-FPM setup.
 
 ### `[coin_counter]`
 

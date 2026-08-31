@@ -1,0 +1,82 @@
+<?php
+declare(strict_types=1);
+
+// Hardened, protocol-compatible replacement for the original upload.php.
+// Copy this file to upload.php and keep the public PDFs in ./mt/.
+const MAX_PDF_BYTES = 5000000;
+const PUBLIC_PDF_DIRECTORY = __DIR__ . '/mt';
+
+function respond(int $status, array $payload): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    echo json_encode($payload, JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+    header('Allow: POST');
+    respond(405, ['ok' => false, 'error' => 'POST required']);
+}
+
+// Optional but recommended. Configure the same secret on the server as
+// FORTUNE_UPLOAD_TOKEN and on the Minitel as PDF_UPLOAD_TOKEN.
+$expectedToken = trim((string) getenv('FORTUNE_UPLOAD_TOKEN'));
+if ($expectedToken !== '') {
+    $authorization = trim((string) ($_SERVER['HTTP_AUTHORIZATION'] ?? ''));
+    if (!hash_equals('Bearer ' . $expectedToken, $authorization)) {
+        header('WWW-Authenticate: Bearer');
+        respond(401, ['ok' => false, 'error' => 'Unauthorized']);
+    }
+}
+
+if (!isset($_FILES['file']) || !is_array($_FILES['file'])) {
+    respond(400, ['ok' => false, 'error' => 'Missing multipart field: file']);
+}
+
+$upload = $_FILES['file'];
+if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    respond(400, ['ok' => false, 'error' => 'PHP upload error']);
+}
+
+$size = (int) ($upload['size'] ?? 0);
+if ($size < 5 || $size > MAX_PDF_BYTES) {
+    respond(413, ['ok' => false, 'error' => 'Invalid PDF size']);
+}
+
+$filename = basename((string) ($upload['name'] ?? ''));
+if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*\.pdf$/i', $filename)) {
+    respond(400, ['ok' => false, 'error' => 'Invalid PDF filename']);
+}
+
+$temporaryFile = (string) ($upload['tmp_name'] ?? '');
+$handle = @fopen($temporaryFile, 'rb');
+$signature = $handle === false ? '' : (string) fread($handle, 5);
+if (is_resource($handle)) {
+    fclose($handle);
+}
+$mime = (new finfo(FILEINFO_MIME_TYPE))->file($temporaryFile);
+if ($signature !== '%PDF-' || !in_array($mime, ['application/pdf', 'application/x-pdf'], true)) {
+    respond(415, ['ok' => false, 'error' => 'Only PDF files are accepted']);
+}
+
+if (!is_dir(PUBLIC_PDF_DIRECTORY)
+    && !mkdir(PUBLIC_PDF_DIRECTORY, 0755, true)
+    && !is_dir(PUBLIC_PDF_DIRECTORY)) {
+    respond(500, ['ok' => false, 'error' => 'PDF directory is unavailable']);
+}
+
+$target = PUBLIC_PDF_DIRECTORY . DIRECTORY_SEPARATOR . $filename;
+if (is_file($target)) {
+    if (hash_file('sha256', $target) === hash_file('sha256', $temporaryFile)) {
+        respond(200, ['ok' => true, 'status' => 'already_exists', 'file' => $filename]);
+    }
+    respond(409, ['ok' => false, 'error' => 'Filename already exists']);
+}
+
+if (!move_uploaded_file($temporaryFile, $target)) {
+    respond(500, ['ok' => false, 'error' => 'Could not store PDF']);
+}
+chmod($target, 0644);
+respond(201, ['ok' => true, 'status' => 'created', 'file' => $filename]);
