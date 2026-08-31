@@ -524,9 +524,28 @@ def generate_unique_filename(file_path):
     unique_name = datetime.now().strftime("%Y-%m-%d_%H-%M_") + file_name
     return unique_name
 
+
+def pdf_delivery_settings():
+    """Return normalized upload and public PDF URLs from settings.ini."""
+    config = configparser.ConfigParser()
+    config.read('settings.ini')
+    upload_url = config.get('pdf', 'upload_url', fallback='').strip()
+    public_base_url = config.get('pdf', 'public_base_url', fallback='').strip()
+    if not upload_url or not public_base_url:
+        raise RuntimeError(
+            "PDF upload_url and public_base_url must be set in settings.ini"
+        )
+    return upload_url, public_base_url.rstrip('/') + '/'
+
+
+def public_pdf_link(filename):
+    """Build the public download link using the configured base URL."""
+    _, public_base_url = pdf_delivery_settings()
+    return public_base_url + str(filename).lstrip('/')
+
 def upload_pdf_to_server(pdf_file_path, unique_filename=None, publish_state=True):
     global upload, link
-    url = 'https://artphone.fr/upload.php'  # URL des Upload-Skripts auf dem Server
+    upload_url, public_base_url = pdf_delivery_settings()
 
     if unique_filename is None:
         unique_filename = generate_unique_filename(pdf_file_path)
@@ -540,7 +559,7 @@ def upload_pdf_to_server(pdf_file_path, unique_filename=None, publish_state=True
             # leave the stream positioned partway through the PDF.
             with open(pdf_file_path, 'rb') as pdf_file:
                 files = {'file': (unique_filename, pdf_file)}
-                response = requests.post(url, files=files, timeout=30)
+                response = requests.post(upload_url, files=files, timeout=30)
             response.raise_for_status()
             break
         except requests.RequestException as error:
@@ -555,7 +574,7 @@ def upload_pdf_to_server(pdf_file_path, unique_filename=None, publish_state=True
             )
             time.sleep(PDF_UPLOAD_RETRY_SECONDS)
 
-    uploaded_link = "https://artphone.fr/mt/" + unique_filename
+    uploaded_link = public_base_url + unique_filename
     print("Datei erfolgreich hochgeladen.")
     print("Die Datei ist unter folgendem Link verfügbar:", uploaded_link)
     os.remove(pdf_file_path)
@@ -1350,7 +1369,7 @@ def _chatbot(messa):
     # QR code. The actual PDF is created and uploaded after the receipt.
     output_filename = str(data_p[0]) + ".pdf"
     pending_pdf_filename = generate_unique_filename(output_filename)
-    link = "https://artphone.fr/mt/" + pending_pdf_filename
+    link = public_pdf_link(pending_pdf_filename)
     qrmaker(link)
 
 
@@ -1395,7 +1414,7 @@ def start_pdf_delivery(text):
         'text': str(text),
         'output_filename': output_filename,
         'remote_filename': str(pending_pdf_filename),
-        'link': "https://artphone.fr/mt/" + str(pending_pdf_filename),
+        'link': str(link),
         'context': context,
         'ready': False,
         'error': '',
@@ -3104,6 +3123,8 @@ def main():
             'chart_line_boost': '1',
             'chart_zodiac_background': 'no'}
         config['pdf'] = {
+            'upload_url': '',
+            'public_base_url': '',
             'include_chart': 'yes',
             'chart_theme': 'classic',
             'chart_style': 'modern',

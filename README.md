@@ -96,6 +96,12 @@ The charts can be enabled independently with `print_chart` and `include_chart`.
 `chart_width`, `chart_render_scale`, `chart_threshold`, and `chart_line_boost`
 control the quality of the black-and-white thermal print.
 
+The PDF delivery paths are configured in `[pdf]`:
+
+- `upload_url`: HTTP endpoint that receives the generated PDF
+- `public_base_url`: public directory used for the QR and download link; a
+  missing trailing slash is added automatically
+
 ### `[coin_counter]`
 
 - `enabled = yes`: payment is required; input remains locked when no Arduino is
