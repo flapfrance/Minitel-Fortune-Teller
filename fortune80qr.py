@@ -1079,6 +1079,68 @@ def printCheck():
     return pV
 
 
+def business_card_image():
+    """Use the same artwork and 576 x 440 raster as the 3615çaVa card."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'WM', 'carteXtra.png')
+    with Image1.open(path) as source:
+        rgba = source.convert('RGBA')
+        white = Image1.new('RGBA', rgba.size, 'white')
+        white.alpha_composite(rgba)
+        gray_source = white.convert('L')
+        ink = gray_source.point(lambda value: 0 if value < 180 else 255)
+        bounds = ink.getbbox()
+        if bounds:
+            gray_source = gray_source.crop(bounds)
+        rotated = gray_source.transpose(Image1.Transpose.ROTATE_90)
+        rotated.thumbnail((576, 440), Image1.Resampling.LANCZOS)
+        canvas = Image1.new('L', (576, 440), 255)
+        canvas.paste(rotated, ((576 - rotated.width) // 2, 0))
+        return canvas.point(lambda value: 255 if value >= 180 else 0, mode='1')
+
+
+def print_business_card():
+    """Print the X-tra card, then release USB and switch off the printer light."""
+    global p, pV
+    print_light_on = False
+    try:
+        card = business_card_image()
+        if not printCheck():
+            return False
+        if relay is not None:
+            try:
+                relay.set_state(3, True)
+                print_light_on = True
+            except Exception as error:
+                print('Printer light could not be switched on:', error)
+        time.sleep(PRINTER_WARMUP_SECONDS)
+        p._raw(b'\x1b@')
+        # Match 3615çaVa's small-buffer USB transfers and full cut.
+        for top in range(0, card.height, 32):
+            strip = card.crop((0, top, card.width, min(top + 32, card.height)))
+            p.image(strip, impl='bitImageRaster', center=True)
+            time.sleep(0.1)
+        p._raw(b'\x1bd\x01\x1dV\x00')
+        time.sleep(PRINTER_DRAIN_SECONDS)
+        print('Business card printed')
+        return True
+    except Exception as error:
+        print('Business card printing failed:', error)
+        return False
+    finally:
+        if p is not None:
+            try:
+                p.close()
+            except Exception as error:
+                print('Printer connection could not be closed:', error)
+        p = None
+        pV = False
+        if print_light_on:
+            try:
+                relay.set_state(3, False)
+            except Exception as error:
+                print('Printer light could not be switched off:', error)
+
+
 def automatic_print_enabled():
     """Return whether a completed analysis should be printed immediately."""
     config = configparser.ConfigParser()
@@ -2215,8 +2277,11 @@ class StateMachine:
         elif touche == m.envoi and choix1 == 98:
 
             self.changeState(self.statePrefs)
+        elif touche == m.envoi and choix1 == 99:
+            if not print_business_card():
+                m.message(15, 7, 1.5, 'Print failed', bip=True)
         elif touche == m.envoi:
-            if choix1 < 1 or choix1 > 2 or choix1 == 99:
+            if choix1 < 1 or choix1 > 2:
                 m.resetzones()
                 m.message(15, 7, 1.5, "Wrong Number, try again ", bip=True)
         elif touche == m.sommaire and choix1 == "sleep":

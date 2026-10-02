@@ -152,6 +152,10 @@ A stale `WAIT` generated immediately after the reset is ignored.
 
 ## Minitel settings
 
+Enter `99` followed by `ENVOI` on
+the welcome page to print the same X-tra business card as in 3615çaVa
+(`WM/carteXtra.png`, 55 mm paper segment), then remain on the welcome page.
+
 Enter `98` on the welcome page to open the settings page. Options including
 `Auto Print` and `Coin Count` can be changed with `YES` or `NO`. Press `ENVOI`
 to save the values. Coin-counter changes take effect after restarting the
